@@ -1990,4 +1990,30 @@
   <data name="MsgCheckUpdateViaGitRefsFailed" xml:space="preserve">
     <value>{0} 的 git 參照無法使用</value>
   </data>
+  <data name="ToggleProxy" xml:space="preserve"><value>切換代理</value></data>
+  <data name="SystemProxy" xml:space="preserve"><value>系統代理</value></data>
+  <data name="OpenConfigurations" xml:space="preserve"><value>開啟設定清單</value></data>
+  <data name="ActiveConfiguration" xml:space="preserve"><value>目前設定</value></data>
+  <data name="SelectAnother" xml:space="preserve"><value>點選以選擇其他設定</value></data>
+  <data name="Configurations" xml:space="preserve"><value>設定</value></data>
+  <data name="AddFromClipboard" xml:space="preserve"><value>從剪貼簿新增</value></data>
+  <data name="AddConfiguration" xml:space="preserve"><value>新增設定</value></data>
+  <data name="PasteConfigurationLink" xml:space="preserve"><value>貼上 vmess、vless、trojan 或其他支援的連結。</value></data>
+  <data name="Add" xml:space="preserve"><value>新增</value></data>
+  <data name="Connected" xml:space="preserve"><value>已連線</value></data>
+  <data name="Disconnected" xml:space="preserve"><value>未連線</value></data>
+  <data name="Connect" xml:space="preserve"><value>連線</value></data>
+  <data name="Disconnect" xml:space="preserve"><value>中斷連線</value></data>
+  <data name="SearchConfigurations" xml:space="preserve"><value>搜尋設定</value></data>
+  <data name="RealDelayLabel" xml:space="preserve"><value>實際延遲 (ms)</value></data>
+  <data name="NoConfigurations" xml:space="preserve"><value>找不到設定</value></data>
+  <data name="CheckingUpdates" xml:space="preserve"><value>正在檢查更新…</value></data>
+  <data name="InstallingUpdates" xml:space="preserve"><value>正在安裝更新…</value></data>
+  <data name="InstallUpdates" xml:space="preserve"><value>安裝更新</value></data>
+  <data name="PackagesCurrent" xml:space="preserve"><value>已是最新</value></data>
+  <data name="UpdateFailed" xml:space="preserve"><value>重新檢查</value></data>
+  <data name="NoUpdateTargets" xml:space="preserve"><value>未選取套件</value></data>
+  <data name="ConnectionMode" xml:space="preserve"><value>連線模式</value></data>
+  <data name="TunModeLabel" xml:space="preserve"><value>TUN</value></data>
+  <data name="ConnectionModeHint" xml:space="preserve"><value>系統代理適用於遵循系統代理設定的應用程式。TUN 也能接管其他應用程式的流量，啟用時可能需要管理員權限。</value></data>
 </root>

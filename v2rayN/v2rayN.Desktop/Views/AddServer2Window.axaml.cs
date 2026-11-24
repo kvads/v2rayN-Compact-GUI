@@ -5,6 +5,8 @@ namespace v2rayN.Desktop.Views;
 
 public partial class AddServer2Window : WindowBase<AddServer2ViewModel>
 {
+    protected override string SizePreferenceKey => nameof(AddServer2Window) + ".Compact";
+
     public AddServer2Window()
     {
         InitializeComponent();

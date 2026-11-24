@@ -69,11 +69,11 @@ public class TaskManager
             }
 
             //Execute once 24 hour
-            if (numOfExecuted % 1440 == 1)
+            if (numOfExecuted % 1440 == 0)
             {
                 try
                 {
-                    await UpdateTaskRunCheckUpdate();
+                    AppEvents.CheckUpdatesRequested.Publish();
                 }
                 catch (Exception ex)
                 {
@@ -127,26 +127,7 @@ public class TaskManager
             {
                 await _updateFunc?.Invoke(false, msg);
             }).UpdateGeoFileAll();
-        }
-    }
-
-    private async Task UpdateTaskRunCheckUpdate()
-    {
-        Logging.SaveLog("Execute check update");
-
-        using var downloadService = await DownloadService.CreateDownloadServiceWithCheck(_config.CheckUpdateItem.UpdateViaProxy);
-        var updateService = new UpdateService(downloadService, _config, async (success, msg) => await Task.CompletedTask);
-
-        var msgs = await updateService.CheckHasUpdateOnlyAll();
-        foreach (var msg in msgs)
-        {
-            await _updateFunc?.Invoke(false, msg);
-        }
-        NoticeManager.Instance.Enqueue(string.Join("\n", msgs));
-
-        if (msgs.Count > 0)
-        {
-            AppEvents.HasUpdateNotified.Publish(true);
+            AppEvents.CheckUpdatesRequested.Publish();
         }
     }
 }

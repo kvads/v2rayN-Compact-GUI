@@ -9,7 +9,7 @@
     xmlns:vms="clr-namespace:ServiceLib.ViewModels;assembly=ServiceLib"
     Name="v2rayN"
     x:DataType="vms:StatusBarViewModel"
-    RequestedThemeVariant="Default">
+    RequestedThemeVariant="Dark">
     <Application.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
@@ -33,6 +33,8 @@
                 ToolTipText="{Binding RunningServerToolTipText, FallbackValue={x:Static service:Global.AppName}}">
                 <TrayIcon.Menu>
                     <NativeMenu>
+                        <NativeMenuItem Command="{Binding ToggleConnectionCmd}" Header="{Binding ConnectionActionText}" />
+                        <NativeMenuItemSeparator />
                         <NativeMenuItem
                             Command="{Binding ShowWindowCmd}"
                             Header="{x:Static resx:ResUI.TbDisplayGUI}"
@@ -65,7 +67,7 @@
                             IsVisible="{Binding BlSystemProxyPacVisible}"
                             ToggleType="Radio" />
                         <NativeMenuItemSeparator />
-                        <NativeMenuItem Click="MenuAddServerViaClipboardClick" Header="{x:Static resx:ResUI.menuAddServerViaClipboard}" />
+                        <NativeMenuItem Click="MenuAddServerViaClipboardClick" Header="{x:Static resx:SimpleUiText.AddConfigurationTray}" />
                         <NativeMenuItem Command="{Binding SubUpdateCmd}" Header="{x:Static resx:ResUI.menuSubUpdate}" />
                         <NativeMenuItem Command="{Binding SubUpdateViaProxyCmd}" Header="{x:Static resx:ResUI.menuSubUpdateViaProxy}" />
                         <NativeMenuItemSeparator />

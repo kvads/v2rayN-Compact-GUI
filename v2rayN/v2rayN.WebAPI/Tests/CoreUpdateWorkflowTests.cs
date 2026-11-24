@@ -2,6 +2,7 @@ using System.Formats.Tar;
 using System.IO.Compression;
 using System.Text;
 using ServiceLib.Resx;
+using ServiceLib.Services;
 using v2rayN.WebAPI.Services;
 
 namespace v2rayN.WebAPI.Tests;
@@ -292,7 +293,7 @@ public class CoreUpdateWorkflowTests
     {
         var manager = CoreInfoManager.Instance;
         await manager.GetCheckPreRelease(ECoreType.Xray, true).Should().BeTrue();
-        await manager.GetCheckPreRelease(ECoreType.v2rayN, true).Should().BeTrue();
+        await manager.GetCheckPreRelease(ECoreType.v2rayN, true).Should().BeFalse();
         await manager.GetCheckPreRelease(ECoreType.mihomo, true).Should().BeFalse();
         await manager.GetCheckPreRelease(ECoreType.sing_box, true).Should().BeFalse();
     }

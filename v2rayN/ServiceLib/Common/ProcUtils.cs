@@ -53,7 +53,7 @@ public static class ProcUtils
             ProcessStartInfo startInfo = new()
             {
                 UseShellExecute = true,
-                Arguments = Global.RebootAs,
+                Arguments = $"{Global.RebootAs} {Environment.ProcessId}",
                 WorkingDirectory = Utils.StartupPath(),
                 FileName = Utils.GetExePath().AppendQuotes(),
                 Verb = blAdmin ? "runas" : null,
@@ -65,5 +65,18 @@ public static class ProcUtils
             Logging.SaveLog(_tag, ex);
             return false;
         }
+    }
+
+    public static void WaitForPreviousInstance(string[] args)
+    {
+        if (args is not [Global.RebootAs, var pid] || !int.TryParse(pid, out var id) || id == Environment.ProcessId) return;
+        try
+        {
+            // Let the old instance release its listening ports and finish saving its configuration.
+            using var previous = Process.GetProcessById(id);
+            using var current = Process.GetCurrentProcess();
+            if (previous.ProcessName == current.ProcessName) previous.WaitForExit(15000);
+        }
+        catch (ArgumentException) { } // Already exited.
     }
 }

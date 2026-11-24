@@ -12,6 +12,13 @@ public partial class StatusBarView
         _config = ConfigTextHandler.Config;
 
         menuExit.Click += menuExit_Click;
+        menuAddServerViaClipboard2.Click += (_, _) =>
+        {
+            if (Application.Current.MainWindow is MainWindow mainWindow)
+            {
+                mainWindow.ShowAddConfigurationDialog();
+            }
+        };
         txtRunningServerDisplay.PreviewMouseDown += txtRunningInfoDisplay_MouseDoubleClick;
         txtRunningInfoDisplay.PreviewMouseDown += txtRunningInfoDisplay_MouseDoubleClick;
 
@@ -26,9 +33,12 @@ public partial class StatusBarView
             this.BindCommand(ViewModel, vm => vm.SystemProxySetCmd, v => v.menuSystemProxySet).DisposeWith(disposables);
             this.BindCommand(ViewModel, vm => vm.SystemProxyNothingCmd, v => v.menuSystemProxyNothing).DisposeWith(disposables);
             this.BindCommand(ViewModel, vm => vm.SystemProxyPacCmd, v => v.menuSystemProxyPac).DisposeWith(disposables);
+            this.BindCommand(ViewModel, vm => vm.ToggleConnectionCmd, v => v.menuToggleConnection).DisposeWith(disposables);
+            this.WhenAnyValue(v => v.ViewModel.IsConnected)
+                .Subscribe(isConnected => menuToggleConnection.Header = isConnected ? SimpleUiText.Disconnect : SimpleUiText.Connect)
+                .DisposeWith(disposables);
 
             //tray menu
-            this.BindCommand(ViewModel, vm => vm.AddServerViaClipboardCmd, v => v.menuAddServerViaClipboard2).DisposeWith(disposables);
             this.BindCommand(ViewModel, vm => vm.AddServerViaScanCmd, v => v.menuAddServerViaScan2).DisposeWith(disposables);
             this.BindCommand(ViewModel, vm => vm.SubUpdateCmd, v => v.menuSubUpdate2).DisposeWith(disposables);
             this.BindCommand(ViewModel, vm => vm.SubUpdateViaProxyCmd, v => v.menuSubUpdateViaProxy2).DisposeWith(disposables);

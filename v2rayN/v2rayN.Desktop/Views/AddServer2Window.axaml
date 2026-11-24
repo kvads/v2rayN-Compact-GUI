@@ -8,7 +8,7 @@
     xmlns:resx="clr-namespace:ServiceLib.Resx;assembly=ServiceLib"
     xmlns:vms="clr-namespace:ServiceLib.ViewModels;assembly=ServiceLib"
     Title="{x:Static resx:ResUI.menuAddCustomServer}"
-    Width="700"
+    Width="600"
     Height="500"
     x:DataType="vms:AddServer2ViewModel"
     Design.DataContext="{x:Static dd:DesignData.AddServer2}"
@@ -53,7 +53,7 @@
                     x:Name="txtRemarks"
                     Grid.Row="1"
                     Grid.Column="1"
-                    Width="400"
+                    Width="288"
                     Margin="{StaticResource Margin4}"
                     HorizontalAlignment="Left"
                     VerticalAlignment="Center" />
@@ -68,7 +68,7 @@
                     x:Name="txtAddress"
                     Grid.Row="2"
                     Grid.Column="1"
-                    Width="400"
+                    Width="288"
                     Margin="{StaticResource Margin4}"
                     HorizontalAlignment="Left"
                     VerticalAlignment="Center"
@@ -157,12 +157,12 @@
                         Grid.ColumnSpan="2"
                         Margin="{StaticResource Margin4}">
                         <TextBlock
-                            Width="500"
+                            Width="340"
                             VerticalAlignment="Center"
                             Text="{x:Static resx:ResUI.TipPreSocksPort}"
                             TextWrapping="Wrap" />
                         <TextBlock
-                            Width="500"
+                            Width="340"
                             Margin="{StaticResource MarginLr8}"
                             VerticalAlignment="Center"
                             Text="{x:Static resx:ResUI.CustomServerTips}"
@@ -194,7 +194,7 @@
                         Grid.Row="1"
                         Grid.Column="1"
                         Grid.ColumnSpan="2"
-                        Width="500"
+                        Width="340"
                         VerticalAlignment="Center"
                         Text="{x:Static resx:ResUI.TbCustomOutboundTip}"
                         TextWrapping="Wrap" />

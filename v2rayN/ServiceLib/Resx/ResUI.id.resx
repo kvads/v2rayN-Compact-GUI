@@ -1830,4 +1830,30 @@ Tindakan "Ambil sertifikat" mungkin gagal jika sertifikat self-signed digunakan 
   <data name="TransportPathTip6" xml:space="preserve">
     <value>Folder jarak jauh XDRIVE</value>
   </data>
+  <data name="ToggleProxy" xml:space="preserve"><value>Aktifkan atau nonaktifkan proksi</value></data>
+  <data name="SystemProxy" xml:space="preserve"><value>Proksi sistem</value></data>
+  <data name="OpenConfigurations" xml:space="preserve"><value>Buka daftar konfigurasi</value></data>
+  <data name="ActiveConfiguration" xml:space="preserve"><value>Konfigurasi aktif</value></data>
+  <data name="SelectAnother" xml:space="preserve"><value>Ketuk untuk memilih yang lain</value></data>
+  <data name="Configurations" xml:space="preserve"><value>Konfigurasi</value></data>
+  <data name="AddFromClipboard" xml:space="preserve"><value>Tambah dari papan klip</value></data>
+  <data name="AddConfiguration" xml:space="preserve"><value>Tambah konfigurasi</value></data>
+  <data name="PasteConfigurationLink" xml:space="preserve"><value>Tempel tautan vmess, vless, trojan, atau tautan lain yang didukung.</value></data>
+  <data name="Add" xml:space="preserve"><value>Tambah</value></data>
+  <data name="Connected" xml:space="preserve"><value>Terhubung</value></data>
+  <data name="Disconnected" xml:space="preserve"><value>Terputus</value></data>
+  <data name="Connect" xml:space="preserve"><value>Hubungkan</value></data>
+  <data name="Disconnect" xml:space="preserve"><value>Putuskan</value></data>
+  <data name="SearchConfigurations" xml:space="preserve"><value>Cari konfigurasi</value></data>
+  <data name="RealDelayLabel" xml:space="preserve"><value>Latensi nyata (ms)</value></data>
+  <data name="NoConfigurations" xml:space="preserve"><value>Konfigurasi tidak ditemukan</value></data>
+  <data name="CheckingUpdates" xml:space="preserve"><value>Memeriksa pembaruan…</value></data>
+  <data name="InstallingUpdates" xml:space="preserve"><value>Memasang pembaruan…</value></data>
+  <data name="InstallUpdates" xml:space="preserve"><value>Pasang pembaruan</value></data>
+  <data name="PackagesCurrent" xml:space="preserve"><value>Semua mutakhir</value></data>
+  <data name="UpdateFailed" xml:space="preserve"><value>Periksa lagi</value></data>
+  <data name="NoUpdateTargets" xml:space="preserve"><value>Tidak ada paket dipilih</value></data>
+  <data name="ConnectionMode" xml:space="preserve"><value>Mode koneksi</value></data>
+  <data name="TunModeLabel" xml:space="preserve"><value>TUN</value></data>
+  <data name="ConnectionModeHint" xml:space="preserve"><value>Proksi sistem bekerja untuk aplikasi yang mengikuti pengaturan proksi sistem. TUN juga merutekan lalu lintas aplikasi lain dan mungkin memerlukan hak administrator.</value></data>
 </root>

@@ -13,7 +13,8 @@ public class ProfileExManagerPersistenceTests
         {
             foreach (var id in ids)
             {
-                manager.SetTestDelay(id, 42);
+                manager.SetTestDelay(id, 0, ESpeedActionType.Tcping);
+                manager.SetTestDelay(id, 42, ESpeedActionType.Realping);
                 manager.SetTestSpeed(id, 12.5m);
                 manager.SetTestMessage(id, "completed");
                 manager.SetTestIpInfo(id, "192.0.2.1");
@@ -28,6 +29,8 @@ public class ProfileExManagerPersistenceTests
                     .Where(t => t.IndexId == id).ToListAsync();
                 await saved.Count.Should().BeEqualTo(1);
                 await saved[0].Delay.Should().BeEqualTo(42);
+                await saved[0].TcpDelay.Should().BeEqualTo((int?)0);
+                await saved[0].RealDelay.Should().BeEqualTo((int?)42);
                 await saved[0].Speed.Should().BeEqualTo(12.5m);
                 await saved[0].Message.Should().BeEqualTo("completed");
                 await saved[0].IpInfo.Should().BeEqualTo("192.0.2.1");

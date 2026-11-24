@@ -3,6 +3,7 @@ namespace ServiceLib.Events;
 public static class AppEvents
 {
     public static readonly EventChannel<RxVoid> AddServerViaClipboardRequested = new();
+    public static readonly EventChannel<RxVoid> CheckUpdatesRequested = new();
     public static readonly EventChannel<bool> HasUpdateNotified = new();
 
     public static readonly EventChannel<ServerSpeedItem> DispatcherStatisticsRequested = new();

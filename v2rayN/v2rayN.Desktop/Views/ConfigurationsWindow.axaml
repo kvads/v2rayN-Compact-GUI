@@ -1,0 +1,113 @@
+<Window x:Class="v2rayN.Desktop.Views.ConfigurationsWindow"
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:resx="clr-namespace:ServiceLib.Resx;assembly=ServiceLib"
+    xmlns:vms="clr-namespace:ServiceLib.ViewModels;assembly=ServiceLib"
+    xmlns:models="clr-namespace:ServiceLib.Models.Dto;assembly=ServiceLib"
+    x:DataType="vms:ConfigurationListViewModel"
+    Title="{x:Static resx:SimpleUiText.Configurations}" Width="520" MinWidth="420" Height="520" MinHeight="300"
+    WindowStartupLocation="CenterOwner" Background="#0B0E11" Icon="/Assets/NotifyIcon1.ico">
+    <Window.Styles>
+        <Style Selector="Button.flat">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Padding" Value="6,3"/>
+            <Setter Property="CornerRadius" Value="7"/>
+            <Setter Property="HorizontalContentAlignment" Value="Left"/>
+        </Style>
+        <Style Selector="Button.flat:pointerover /template/ ContentPresenter">
+            <Setter Property="Background" Value="#252D35"/>
+        </Style>
+        <Style Selector="ListBoxItem">
+            <Setter Property="Padding" Value="0"/>
+            <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+            <Setter Property="Margin" Value="0,0,0,7"/>
+        </Style>
+    </Window.Styles>
+    <DockPanel Margin="16">
+        <Grid DockPanel.Dock="Top" Margin="0,0,0,14">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <Border Background="#181D23" CornerRadius="8" Margin="0,0,8,0">
+                <Grid ColumnDefinitions="32,*">
+                    <Path Width="15" Height="15" Stretch="Uniform" Stroke="#ABB3BE" StrokeThickness="1.7" Data="M15 15L21 21 M17 10A7 7 0 1 1 3 10A7 7 0 1 1 17 10Z"/>
+                    <Grid Grid.Column="1">
+                        <TextBox x:Name="Search" Text="{Binding Query, Mode=TwoWay}"
+                            AutomationProperties.Name="{x:Static resx:SimpleUiText.SearchConfigurations}" Height="38"
+                            PlaceholderText="{x:Static resx:SimpleUiText.SearchConfigurations}"
+                            Background="Transparent" Foreground="#F2F4F6" BorderThickness="0" Padding="2,0,4,0" VerticalContentAlignment="Center"/>
+                    </Grid>
+                </Grid>
+            </Border>
+            <Button Grid.Column="1" Classes="flat" Width="38" Height="38" HorizontalContentAlignment="Center"
+                ToolTip.Tip="{x:Static resx:SimpleUiText.AddConfiguration}" AutomationProperties.Name="{x:Static resx:SimpleUiText.AddConfiguration}" Click="AddManually_Click">
+                <Path Width="17" Height="17" Stretch="Uniform" Stroke="#EDEFF3" StrokeThickness="1.6" Data="M12 5V19 M5 12H19"/>
+            </Button>
+            <Button Grid.Column="2" Classes="flat" Width="38" Height="38" HorizontalContentAlignment="Center"
+                ToolTip.Tip="{x:Static resx:SimpleUiText.AddFromClipboard}" AutomationProperties.Name="{x:Static resx:SimpleUiText.AddFromClipboard}" Command="{Binding Main.AddServerViaClipboardCmd}">
+                <Path Width="17" Height="17" Stretch="Uniform" Stroke="#EDEFF3" StrokeThickness="1.6" Data="M9 5H6A1 1 0 0 0 5 6V20H19V6A1 1 0 0 0 18 5H15 M9 3H15V7H9Z M8 12H16 M8 16H14"/>
+            </Button>
+            <Button Grid.Column="3" Classes="flat" Width="38" Height="38" HorizontalContentAlignment="Center"
+                ToolTip.Tip="{x:Static resx:ResUI.menuAddServerViaImage}" AutomationProperties.Name="{x:Static resx:ResUI.menuAddServerViaImage}" Command="{Binding Main.AddServerViaImageCmd}">
+                <Path Width="17" Height="17" Stretch="Uniform" Stroke="#EDEFF3" StrokeThickness="1.6" Data="M3 3H10V10H3Z M14 3H21V10H14Z M3 14H10V21H3Z M14 14H17V17H21 M14 18V21H17 M21 20V21"/>
+            </Button>
+        </Grid>
+        <Grid>
+            <ListBox ItemsSource="{Binding Cards}" Background="Transparent" BorderThickness="0" Padding="0"
+                ScrollViewer.HorizontalScrollBarVisibility="Disabled" ScrollViewer.VerticalScrollBarVisibility="Auto">
+                <ListBox.ItemTemplate>
+                    <DataTemplate x:DataType="models:ProfileItemModel">
+                        <Border Background="#181D23" CornerRadius="12" Padding="10,6,10,9">
+                            <StackPanel>
+                                <Grid ColumnDefinitions="*,Auto">
+                                    <Button Classes="flat" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch" AutomationProperties.Name="{Binding DisplayName}"
+                                        Command="{Binding $parent[Window].((vms:ConfigurationListViewModel)DataContext).Activate}" CommandParameter="{Binding}" ToolTip.Tip="{x:Static resx:ResUI.menuSetDefaultServer}">
+                                        <Grid ColumnDefinitions="Auto,*">
+                                            <TextBlock IsVisible="{Binding IsActive}" Margin="0,0,7,0" VerticalAlignment="Center" Foreground="#FFB477"
+                                                AutomationProperties.Name="{x:Static resx:ResUI.TipActiveServer}" Text="✓"/>
+                                            <TextBlock Grid.Column="1" VerticalAlignment="Center" FontSize="16" FontWeight="SemiBold"
+                                                Foreground="#F2F4F6" TextTrimming="CharacterEllipsis" Text="{Binding DisplayName}" ToolTip.Tip="{Binding DisplayName}"/>
+                                        </Grid>
+                                    </Button>
+                                    <Button Grid.Column="1" Classes="flat" Width="36" Height="34" HorizontalContentAlignment="Center"
+                                        ToolTip.Tip="{x:Static resx:ResUI.menuEditServer}" AutomationProperties.Name="{x:Static resx:ResUI.menuEditServer}" Command="{Binding $parent[Window].((vms:ConfigurationListViewModel)DataContext).Edit}" CommandParameter="{Binding}">
+                                        <Path Width="17" Height="17" Stretch="Uniform" Stroke="#EDEFF3" StrokeThickness="1.6" Data="M4 16L15 5L19 9L8 20L3 21Z M14 6L18 10"/>
+                                    </Button>
+                                </Grid>
+                                <Grid ColumnDefinitions="*,*,*">
+                                    <Button Grid.Column="0" Classes="flat" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch" MinHeight="44"
+                                        ToolTip.Tip="{x:Static resx:ResUI.menuTcpingServer}" AutomationProperties.Name="{x:Static resx:ResUI.menuTcpingServer}" Command="{Binding $parent[Window].((vms:ConfigurationListViewModel)DataContext).TestTcp}" CommandParameter="{Binding}">
+                                        <StackPanel>
+                                            <TextBlock Text="TCP (ms)" FontSize="11" Foreground="#AFB7C2" TextTrimming="CharacterEllipsis"/>
+                                            <TextBlock Text="{Binding TcpDelayText}" FontSize="14" Foreground="#EDF1F6" TextTrimming="CharacterEllipsis" ToolTip.Tip="{Binding TcpDelayText}"/>
+                                        </StackPanel>
+                                    </Button>
+                                    <Button Grid.Column="1" Classes="flat" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch" MinHeight="44"
+                                        ToolTip.Tip="{x:Static resx:ResUI.menuRealPingServer}" AutomationProperties.Name="{x:Static resx:ResUI.menuRealPingServer}" Command="{Binding $parent[Window].((vms:ConfigurationListViewModel)DataContext).TestReal}" CommandParameter="{Binding}">
+                                        <StackPanel>
+                                            <TextBlock Text="{x:Static resx:SimpleUiText.RealDelayLabel}" FontSize="11" Foreground="#AFB7C2" TextTrimming="CharacterEllipsis"/>
+                                            <TextBlock Text="{Binding RealDelayText}" FontSize="14" Foreground="#EDF1F6" TextTrimming="CharacterEllipsis" ToolTip.Tip="{Binding RealDelayText}"/>
+                                        </StackPanel>
+                                    </Button>
+                                    <Button Grid.Column="2" Classes="flat" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch" MinHeight="44"
+                                        ToolTip.Tip="{x:Static resx:ResUI.menuSpeedServer}" AutomationProperties.Name="{x:Static resx:ResUI.menuSpeedServer}" Command="{Binding $parent[Window].((vms:ConfigurationListViewModel)DataContext).TestSpeed}" CommandParameter="{Binding}">
+                                        <StackPanel>
+                                            <TextBlock Text="{x:Static resx:ResUI.LvTestSpeed}" FontSize="11" Foreground="#AFB7C2" TextTrimming="CharacterEllipsis"/>
+                                            <TextBlock Text="{Binding SpeedVal}" FontSize="14" Foreground="#EDF1F6" TextTrimming="CharacterEllipsis" ToolTip.Tip="{Binding SpeedVal}"/>
+                                        </StackPanel>
+                                    </Button>
+                                </Grid>
+                            </StackPanel>
+                        </Border>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+            <TextBlock IsVisible="{Binding IsEmpty}" Text="{x:Static resx:SimpleUiText.NoConfigurations}"
+                VerticalAlignment="Center" HorizontalAlignment="Center" Foreground="#AFB7C2"/>
+        </Grid>
+    </DockPanel>
+</Window>

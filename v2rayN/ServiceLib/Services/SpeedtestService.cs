@@ -115,6 +115,12 @@ public class SpeedtestService(Config config, Func<SpeedTestResult, Task> updateF
                         ct);
                     break;
             }
+
+            if (actionType is ESpeedActionType.Realping or ESpeedActionType.Tcping)
+            {
+                var unfinished = lstSelected.Where(it => !completedIds.ContainsKey(it.IndexId)).ToList();
+                await SetTestResultAsync(unfinished, actionType, ResUI.SpeedtestingSkip);
+            }
         }
         catch (OperationCanceledException) when (ct.IsCancellationRequested)
         {
@@ -184,7 +190,7 @@ public class SpeedtestService(Config config, Func<SpeedTestResult, Task> updateF
                 case ESpeedActionType.Tcping:
                 case ESpeedActionType.Realping:
                 case ESpeedActionType.UdpTest:
-                    await UpdateFunc(it.IndexId, message, "");
+                    await UpdateFunc(it.IndexId, message, delayType: actionType);
                     break;
 
                 case ESpeedActionType.Speedtest:
@@ -195,7 +201,7 @@ public class SpeedtestService(Config config, Func<SpeedTestResult, Task> updateF
 
                 case ESpeedActionType.Mixedtest:
                     ProfileExManager.Instance.SetTestSpeed(it.IndexId, 0);
-                    await UpdateFunc(it.IndexId, message, message);
+                    await UpdateFunc(it.IndexId, message, message, ESpeedActionType.Realping);
                     break;
             }
         }
@@ -223,8 +229,8 @@ public class SpeedtestService(Config config, Func<SpeedTestResult, Task> updateF
                 {
                     var responseTime = await GetTcpingTime(item.Address, item.Port, innerCt);
 
-                    ProfileExManager.Instance.SetTestDelay(item.IndexId, responseTime);
-                    await UpdateFunc(item.IndexId, responseTime.ToString());
+                    ProfileExManager.Instance.SetTestDelay(item.IndexId, responseTime, ESpeedActionType.Tcping);
+                    await UpdateFunc(item.IndexId, responseTime.ToString(), delayType: ESpeedActionType.Tcping);
                     completedIds.TryAdd(item.IndexId, 0);
                 }
                 catch (OperationCanceledException) when (ct.IsCancellationRequested)
@@ -234,6 +240,9 @@ public class SpeedtestService(Config config, Func<SpeedTestResult, Task> updateF
                 catch (Exception ex)
                 {
                     Logging.SaveLog(_tag, ex);
+                    ProfileExManager.Instance.SetTestDelay(item.IndexId, -1, ESpeedActionType.Tcping);
+                    await UpdateFunc(item.IndexId, "-1", delayType: ESpeedActionType.Tcping);
+                    completedIds.TryAdd(item.IndexId, 0);
                 }
             });
 
@@ -303,7 +312,7 @@ public class SpeedtestService(Config config, Func<SpeedTestResult, Task> updateF
             {
                 if (!it.AllowTest)
                 {
-                    await UpdateFunc(it.IndexId, ResUI.SpeedtestingSkip);
+                    await UpdateFunc(it.IndexId, ResUI.SpeedtestingSkip, delayType: ESpeedActionType.Realping);
                     completedIds.TryAdd(it.IndexId, 0);
                     return;
                 }
@@ -499,8 +508,8 @@ public class SpeedtestService(Config config, Func<SpeedTestResult, Task> updateF
             using var client = new HttpClient(handler, false);
             responseTime = await ConnectionHandler.GetRealPingTime(client, ct);
 
-            ProfileExManager.Instance.SetTestDelay(it.IndexId, responseTime);
-            await UpdateFunc(it.IndexId, responseTime.ToString());
+            ProfileExManager.Instance.SetTestDelay(it.IndexId, responseTime, ESpeedActionType.Realping);
+            await UpdateFunc(it.IndexId, responseTime.ToString(), delayType: ESpeedActionType.Realping);
 
             if (!_config.UiItem.HideColumnIpInfo && responseTime > 0)
             {
@@ -578,7 +587,7 @@ public class SpeedtestService(Config config, Func<SpeedTestResult, Task> updateF
             // Ignore
         }
 
-        ProfileExManager.Instance.SetTestDelay(it.IndexId, responseTime);
+        ProfileExManager.Instance.SetTestDelay(it.IndexId, responseTime, ESpeedActionType.UdpTest);
         await UpdateFunc(it.IndexId, responseTime.ToString());
         completedIds.TryAdd(it.IndexId, 0);
         return responseTime;
@@ -645,9 +654,9 @@ public class SpeedtestService(Config config, Func<SpeedTestResult, Task> updateF
         return lstTest;
     }
 
-    private async Task UpdateFunc(string indexId, string delay, string speed = "")
+    private async Task UpdateFunc(string indexId, string delay, string speed = "", ESpeedActionType? delayType = null)
     {
-        await _updateFunc?.Invoke(new() { IndexId = indexId, Delay = delay, Speed = speed });
+        await _updateFunc?.Invoke(new() { IndexId = indexId, Delay = delay, Speed = speed, DelayType = delayType });
         if (indexId.IsNotEmpty() && speed.IsNotEmpty())
         {
             ProfileExManager.Instance.SetTestMessage(indexId, speed);

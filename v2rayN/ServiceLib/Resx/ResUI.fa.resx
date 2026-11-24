@@ -1809,4 +1809,30 @@ The "Get Certificate" action may fail if a self-signed certificate is used or if
   <data name="TransportPathTip6" xml:space="preserve">
     <value>پوشه ریموت XDRIVE</value>
   </data>
+  <data name="ToggleProxy" xml:space="preserve"><value>روشن یا خاموش کردن پراکسی</value></data>
+  <data name="SystemProxy" xml:space="preserve"><value>پراکسی سیستم</value></data>
+  <data name="OpenConfigurations" xml:space="preserve"><value>باز کردن پیکربندی‌ها</value></data>
+  <data name="ActiveConfiguration" xml:space="preserve"><value>پیکربندی فعال</value></data>
+  <data name="SelectAnother" xml:space="preserve"><value>برای انتخاب مورد دیگر کلیک کنید</value></data>
+  <data name="Configurations" xml:space="preserve"><value>پیکربندی‌ها</value></data>
+  <data name="AddFromClipboard" xml:space="preserve"><value>افزودن از کلیپ‌بورد</value></data>
+  <data name="AddConfiguration" xml:space="preserve"><value>افزودن پیکربندی</value></data>
+  <data name="PasteConfigurationLink" xml:space="preserve"><value>پیوند vmess، vless، trojan یا پیوند پشتیبانی‌شدهٔ دیگری را جای‌گذاری کنید.</value></data>
+  <data name="Add" xml:space="preserve"><value>افزودن</value></data>
+  <data name="Connected" xml:space="preserve"><value>متصل</value></data>
+  <data name="Disconnected" xml:space="preserve"><value>قطع شده</value></data>
+  <data name="Connect" xml:space="preserve"><value>اتصال</value></data>
+  <data name="Disconnect" xml:space="preserve"><value>قطع اتصال</value></data>
+  <data name="SearchConfigurations" xml:space="preserve"><value>جستجوی پیکربندی‌ها</value></data>
+  <data name="RealDelayLabel" xml:space="preserve"><value>تأخیر واقعی (ms)</value></data>
+  <data name="NoConfigurations" xml:space="preserve"><value>پیکربندی پیدا نشد</value></data>
+  <data name="CheckingUpdates" xml:space="preserve"><value>در حال بررسی به‌روزرسانی…</value></data>
+  <data name="InstallingUpdates" xml:space="preserve"><value>در حال نصب به‌روزرسانی…</value></data>
+  <data name="InstallUpdates" xml:space="preserve"><value>نصب به‌روزرسانی‌ها</value></data>
+  <data name="PackagesCurrent" xml:space="preserve"><value>همه به‌روز هستند</value></data>
+  <data name="UpdateFailed" xml:space="preserve"><value>بررسی دوباره</value></data>
+  <data name="NoUpdateTargets" xml:space="preserve"><value>بسته‌ای انتخاب نشده است</value></data>
+  <data name="ConnectionMode" xml:space="preserve"><value>حالت اتصال</value></data>
+  <data name="TunModeLabel" xml:space="preserve"><value>TUN</value></data>
+  <data name="ConnectionModeHint" xml:space="preserve"><value>پروکسی سیستم برای برنامه‌هایی کار می‌کند که از تنظیمات پروکسی سیستم پیروی می‌کنند. TUN ترافیک سایر برنامه‌ها را هم مسیریابی می‌کند و ممکن است به دسترسی مدیر نیاز داشته باشد.</value></data>
 </root>

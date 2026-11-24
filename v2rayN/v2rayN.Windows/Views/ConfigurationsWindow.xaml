@@ -1,0 +1,147 @@
+<Window x:Class="v2rayN.Views.ConfigurationsWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:resx="clr-namespace:ServiceLib.Resx;assembly=ServiceLib"
+    xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+    Title="{x:Static resx:SimpleUiText.Configurations}" Width="520" MinWidth="420" Height="520" MinHeight="300"
+    WindowStartupLocation="CenterOwner" Background="#0B0E11" Icon="/Resources/v2rayN.ico">
+    <Window.Resources>
+        <BooleanToVisibilityConverter x:Key="VisibleWhen"/>
+        <Style x:Key="flat" TargetType="Button">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Padding" Value="6,3"/>
+            <Setter Property="HorizontalContentAlignment" Value="Left"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="Surface" Background="{TemplateBinding Background}" CornerRadius="7" Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Surface" Property="Background" Value="#252D35"/>
+                            </Trigger>
+                            <Trigger Property="IsKeyboardFocused" Value="True">
+                                <Setter TargetName="Surface" Property="Background" Value="#303944"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style TargetType="ListBoxItem">
+            <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+            <Setter Property="Margin" Value="0,0,0,7"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ListBoxItem">
+                        <ContentPresenter/>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Window.Resources>
+    <DockPanel Margin="16">
+        <Grid DockPanel.Dock="Top" Margin="0,0,0,14">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <Border Background="#181D23" CornerRadius="8" Margin="0,0,8,0">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="32"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Path Width="15" Height="15" Stretch="Uniform" Stroke="#ABB3BE" StrokeThickness="1.7" Data="M15 15L21 21 M17 10A7 7 0 1 1 3 10A7 7 0 1 1 17 10Z"/>
+                    <Grid Grid.Column="1">
+                        <TextBox x:Name="Search" Text="{Binding Query, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                            AutomationProperties.Name="{x:Static resx:SimpleUiText.SearchConfigurations}" Height="38"
+                            materialDesign:HintAssist.Hint="{x:Static resx:SimpleUiText.SearchConfigurations}"
+                            Background="Transparent" Foreground="#F2F4F6" BorderThickness="0" Padding="2,0,4,0" VerticalContentAlignment="Center"/>
+                    </Grid>
+                </Grid>
+            </Border>
+            <Button Grid.Column="1" Style="{StaticResource flat}" Width="38" Height="38" HorizontalContentAlignment="Center"
+                ToolTip="{x:Static resx:SimpleUiText.AddConfiguration}" AutomationProperties.Name="{x:Static resx:SimpleUiText.AddConfiguration}" Click="AddManually_Click">
+                <Path Width="17" Height="17" Stretch="Uniform" Stroke="#EDEFF3" StrokeThickness="1.6" Data="M12 5V19 M5 12H19"/>
+            </Button>
+            <Button Grid.Column="2" Style="{StaticResource flat}" Width="38" Height="38" HorizontalContentAlignment="Center"
+                ToolTip="{x:Static resx:SimpleUiText.AddFromClipboard}" AutomationProperties.Name="{x:Static resx:SimpleUiText.AddFromClipboard}" Command="{Binding Main.AddServerViaClipboardCmd}">
+                <Path Width="17" Height="17" Stretch="Uniform" Stroke="#EDEFF3" StrokeThickness="1.6" Data="M9 5H6A1 1 0 0 0 5 6V20H19V6A1 1 0 0 0 18 5H15 M9 3H15V7H9Z M8 12H16 M8 16H14"/>
+            </Button>
+            <Button Grid.Column="3" Style="{StaticResource flat}" Width="38" Height="38" HorizontalContentAlignment="Center"
+                ToolTip="{x:Static resx:ResUI.menuAddServerViaImage}" AutomationProperties.Name="{x:Static resx:ResUI.menuAddServerViaImage}" Command="{Binding Main.AddServerViaImageCmd}">
+                <Path Width="17" Height="17" Stretch="Uniform" Stroke="#EDEFF3" StrokeThickness="1.6" Data="M3 3H10V10H3Z M14 3H21V10H14Z M3 14H10V21H3Z M14 14H17V17H21 M14 18V21H17 M21 20V21"/>
+            </Button>
+        </Grid>
+        <Grid>
+            <ListBox ItemsSource="{Binding Cards}" Background="Transparent" BorderThickness="0" Padding="0"
+                ScrollViewer.HorizontalScrollBarVisibility="Disabled" ScrollViewer.VerticalScrollBarVisibility="Auto">
+                <ListBox.ItemTemplate>
+                    <DataTemplate >
+                        <Border Background="#181D23" CornerRadius="12" Padding="10,6,10,9">
+                            <StackPanel>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Button Style="{StaticResource flat}" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch" AutomationProperties.Name="{Binding DisplayName}"
+                                        Command="{Binding DataContext.Activate, RelativeSource={RelativeSource AncestorType=Window}}" CommandParameter="{Binding}" ToolTip="{x:Static resx:ResUI.menuSetDefaultServer}">
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="Auto"/>
+                                                <ColumnDefinition Width="*"/>
+                                            </Grid.ColumnDefinitions>
+                                            <TextBlock Visibility="{Binding IsActive, Converter={StaticResource VisibleWhen}}" Margin="0,0,7,0" VerticalAlignment="Center" Foreground="#FFB477"
+                                                AutomationProperties.Name="{x:Static resx:ResUI.TipActiveServer}" Text="✓"/>
+                                            <TextBlock Grid.Column="1" VerticalAlignment="Center" FontSize="16" FontWeight="SemiBold"
+                                                Foreground="#F2F4F6" TextTrimming="CharacterEllipsis" Text="{Binding DisplayName}" ToolTip="{Binding DisplayName}"/>
+                                        </Grid>
+                                    </Button>
+                                    <Button Grid.Column="1" Style="{StaticResource flat}" Width="36" Height="34" HorizontalContentAlignment="Center"
+                                        ToolTip="{x:Static resx:ResUI.menuEditServer}" AutomationProperties.Name="{x:Static resx:ResUI.menuEditServer}" Command="{Binding DataContext.Edit, RelativeSource={RelativeSource AncestorType=Window}}" CommandParameter="{Binding}">
+                                        <Path Width="17" Height="17" Stretch="Uniform" Stroke="#EDEFF3" StrokeThickness="1.6" Data="M4 16L15 5L19 9L8 20L3 21Z M14 6L18 10"/>
+                                    </Button>
+                                </Grid>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Button Grid.Column="0" Style="{StaticResource flat}" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch" MinHeight="44"
+                                        ToolTip="{x:Static resx:ResUI.menuTcpingServer}" AutomationProperties.Name="{x:Static resx:ResUI.menuTcpingServer}" Command="{Binding DataContext.TestTcp, RelativeSource={RelativeSource AncestorType=Window}}" CommandParameter="{Binding}">
+                                        <StackPanel>
+                                            <TextBlock Text="TCP (ms)" FontSize="11" Foreground="#AFB7C2" TextTrimming="CharacterEllipsis"/>
+                                            <TextBlock Text="{Binding TcpDelayText}" FontSize="14" Foreground="#EDF1F6" TextTrimming="CharacterEllipsis" ToolTip="{Binding TcpDelayText}"/>
+                                        </StackPanel>
+                                    </Button>
+                                    <Button Grid.Column="1" Style="{StaticResource flat}" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch" MinHeight="44"
+                                        ToolTip="{x:Static resx:ResUI.menuRealPingServer}" AutomationProperties.Name="{x:Static resx:ResUI.menuRealPingServer}" Command="{Binding DataContext.TestReal, RelativeSource={RelativeSource AncestorType=Window}}" CommandParameter="{Binding}">
+                                        <StackPanel>
+                                            <TextBlock Text="{x:Static resx:SimpleUiText.RealDelayLabel}" FontSize="11" Foreground="#AFB7C2" TextTrimming="CharacterEllipsis"/>
+                                            <TextBlock Text="{Binding RealDelayText}" FontSize="14" Foreground="#EDF1F6" TextTrimming="CharacterEllipsis" ToolTip="{Binding RealDelayText}"/>
+                                        </StackPanel>
+                                    </Button>
+                                    <Button Grid.Column="2" Style="{StaticResource flat}" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch" MinHeight="44"
+                                        ToolTip="{x:Static resx:ResUI.menuSpeedServer}" AutomationProperties.Name="{x:Static resx:ResUI.menuSpeedServer}" Command="{Binding DataContext.TestSpeed, RelativeSource={RelativeSource AncestorType=Window}}" CommandParameter="{Binding}">
+                                        <StackPanel>
+                                            <TextBlock Text="{x:Static resx:ResUI.LvTestSpeed}" FontSize="11" Foreground="#AFB7C2" TextTrimming="CharacterEllipsis"/>
+                                            <TextBlock Text="{Binding SpeedVal}" FontSize="14" Foreground="#EDF1F6" TextTrimming="CharacterEllipsis" ToolTip="{Binding SpeedVal}"/>
+                                        </StackPanel>
+                                    </Button>
+                                </Grid>
+                            </StackPanel>
+                        </Border>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+            <TextBlock Visibility="{Binding IsEmpty, Converter={StaticResource VisibleWhen}}" Text="{x:Static resx:SimpleUiText.NoConfigurations}"
+                VerticalAlignment="Center" HorizontalAlignment="Center" Foreground="#AFB7C2"/>
+        </Grid>
+    </DockPanel>
+</Window>

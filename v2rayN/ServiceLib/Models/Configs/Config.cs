@@ -2,6 +2,9 @@ namespace ServiceLib.Models.Configs;
 
 public class Config
 {
+    public ESysProxyType GetTrayProxyType() =>
+        TunModeItem.EnableTun ? ESysProxyType.ForcedChange : SystemProxyItem.SysProxyType;
+
     #region property
 
     public string PreIndexId { get; set; }

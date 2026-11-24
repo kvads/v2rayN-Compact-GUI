@@ -1935,4 +1935,30 @@ Təyin edildikdə sertifikat sabitlənəcək və "Təhlükəsiz olmayan əlaqəy
   <data name="TransportPathTip6" xml:space="preserve">
     <value>XDRIVE uzaqdakı qovluq</value>
   </data>
+  <data name="ToggleProxy" xml:space="preserve"><value>Proksini yandır və ya söndür</value></data>
+  <data name="SystemProxy" xml:space="preserve"><value>Sistem proksisi</value></data>
+  <data name="OpenConfigurations" xml:space="preserve"><value>Konfiqurasiyaları aç</value></data>
+  <data name="ActiveConfiguration" xml:space="preserve"><value>Aktiv konfiqurasiya</value></data>
+  <data name="SelectAnother" xml:space="preserve"><value>Başqasını seçmək üçün toxunun</value></data>
+  <data name="Configurations" xml:space="preserve"><value>Konfiqurasiyalar</value></data>
+  <data name="AddFromClipboard" xml:space="preserve"><value>Buferdən əlavə et</value></data>
+  <data name="AddConfiguration" xml:space="preserve"><value>Konfiqurasiya əlavə et</value></data>
+  <data name="PasteConfigurationLink" xml:space="preserve"><value>vmess, vless, trojan və ya digər dəstəklənən keçidi yapışdırın.</value></data>
+  <data name="Add" xml:space="preserve"><value>Əlavə et</value></data>
+  <data name="Connected" xml:space="preserve"><value>Qoşulub</value></data>
+  <data name="Disconnected" xml:space="preserve"><value>Ayrılıb</value></data>
+  <data name="Connect" xml:space="preserve"><value>Qoşul</value></data>
+  <data name="Disconnect" xml:space="preserve"><value>Ayır</value></data>
+  <data name="SearchConfigurations" xml:space="preserve"><value>Konfiqurasiyaları axtar</value></data>
+  <data name="RealDelayLabel" xml:space="preserve"><value>Real gecikmə (ms)</value></data>
+  <data name="NoConfigurations" xml:space="preserve"><value>Konfiqurasiya tapılmadı</value></data>
+  <data name="CheckingUpdates" xml:space="preserve"><value>Yeniləmələr yoxlanılır…</value></data>
+  <data name="InstallingUpdates" xml:space="preserve"><value>Yeniləmələr quraşdırılır…</value></data>
+  <data name="InstallUpdates" xml:space="preserve"><value>Yeniləmələri quraşdır</value></data>
+  <data name="PackagesCurrent" xml:space="preserve"><value>Hər şey yenidir</value></data>
+  <data name="UpdateFailed" xml:space="preserve"><value>Yenidən yoxla</value></data>
+  <data name="NoUpdateTargets" xml:space="preserve"><value>Paket seçilməyib</value></data>
+  <data name="ConnectionMode" xml:space="preserve"><value>Bağlantı rejimi</value></data>
+  <data name="TunModeLabel" xml:space="preserve"><value>TUN</value></data>
+  <data name="ConnectionModeHint" xml:space="preserve"><value>Sistem proksisi sistemin proksi ayarlarına əməl edən tətbiqlərlə işləyir. TUN digər tətbiqlərin də trafikini yönləndirir və administrator hüquqları tələb edə bilər.</value></data>
 </root>

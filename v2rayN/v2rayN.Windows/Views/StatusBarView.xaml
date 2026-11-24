@@ -111,6 +111,12 @@
             <tb:TaskbarIcon.ContextMenu>
                 <ContextMenu Style="{StaticResource DefContextMenu}">
                     <MenuItem
+                        x:Name="menuToggleConnection"
+                        Height="44"
+                        AutomationProperties.Name="{x:Static resx:SimpleUiText.ToggleProxy}"
+                        Header="{x:Static resx:SimpleUiText.Connect}" />
+                    <Separator />
+                    <MenuItem
                         x:Name="menuSystemProxyClear"
                         Height="{StaticResource MenuItemHeight}"
                         AutomationProperties.Name="{x:Static resx:ResUI.menuSystemProxyClear}">
@@ -174,7 +180,7 @@
                     <MenuItem
                         x:Name="menuAddServerViaClipboard2"
                         Height="{StaticResource MenuItemHeight}"
-                        Header="{x:Static resx:ResUI.menuAddServerViaClipboard}" />
+                        Header="{x:Static resx:SimpleUiText.AddConfigurationTray}" />
                     <MenuItem
                         x:Name="menuAddServerViaScan2"
                         Height="{StaticResource MenuItemHeight}"

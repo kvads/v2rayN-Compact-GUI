@@ -4,6 +4,8 @@ namespace v2rayN.Desktop.Views;
 
 public partial class AddGroupServerWindow : WindowBase<AddGroupServerViewModel>
 {
+    protected override string SizePreferenceKey => nameof(AddGroupServerWindow) + ".Compact";
+
     public AddGroupServerWindow()
     {
         InitializeComponent();

@@ -12,8 +12,9 @@ public partial class MainWindow : WindowBase<MainWindowViewModel>
 {
     private static Config _config;
     private readonly WindowNotificationManager? _manager;
-    private CheckUpdateView? _checkUpdateView;
+    private Window? _updatesWindow;
     private BackupAndRestoreView? _backupAndRestoreView;
+    private ConfigurationsWindow? _configurationsWindow;
     private bool _blCloseByUser = false;
 
     private MsgView? _msgView;
@@ -40,6 +41,8 @@ public partial class MainWindow : WindowBase<MainWindowViewModel>
 
         this.WhenActivated(disposables =>
         {
+            this.Bind(ViewModel, vm => vm.StatusBarViewModel.ConnectionModeIndex, v => v.lstConnectionMode.SelectedIndex).DisposeWith(disposables);
+
             //servers
             this.BindCommand(ViewModel, vm => vm.AddVmessServerCmd, v => v.menuAddVmessServer).DisposeWith(disposables);
             this.BindCommand(ViewModel, vm => vm.AddVlessServerCmd, v => v.menuAddVlessServer).DisposeWith(disposables);
@@ -86,6 +89,57 @@ public partial class MainWindow : WindowBase<MainWindowViewModel>
             this.OneWayBind(ViewModel, vm => vm.BlNewUpdate, v => v.btnNewUpdate.IsVisible).DisposeWith(disposables);
 
             this.OneWayBind(ViewModel, vm => vm.StatusBarViewModel, v => v.contentStatusBarView.Content).DisposeWith(disposables);
+
+            ViewModel.StatusBarViewModel.SetClipboardDataInteraction.RegisterHandler(async interaction =>
+            {
+                await AvaUtils.SetClipboardData(this, interaction.Input);
+                interaction.SetOutput(RxVoid.Default);
+            }).DisposeWith(disposables);
+
+            ViewModel.StatusBarViewModel.PasswordInputInteraction.RegisterHandler(async interaction =>
+            {
+                var dialog = new SudoPasswordInputView();
+                var result = await DialogHost.Show(dialog);
+                var password = result?.ToString();
+                if (password.IsNotEmpty())
+                {
+                    AppManager.Instance.LinuxSudoPwd = password;
+                }
+                interaction.SetOutput(password);
+            }).DisposeWith(disposables);
+
+            ViewModel.StatusBarViewModel.DispatcherRefreshIconInteraction.RegisterHandler(interaction =>
+            {
+                Dispatcher.UIThread.Post(RefreshStatusIcon, DispatcherPriority.Default);
+                interaction.SetOutput(RxVoid.Default);
+            }).DisposeWith(disposables);
+
+            this.WhenAnyValue(v => v.ViewModel.ProfilesViewModel.SelectedProfile)
+                .Where(profile => profile != null)
+                .Subscribe(profile => ViewModel.ProfilesViewModel.SelectedProfiles = [profile])
+                .DisposeWith(disposables);
+
+            ViewModel.ProfilesViewModel.ShowYesNoInteraction.RegisterHandler(async interaction =>
+            {
+                var result = await UI.ShowYesNo(interaction.Input);
+                interaction.SetOutput(result == ButtonResult.Yes);
+            }).DisposeWith(disposables);
+
+            ViewModel.ProfilesViewModel.ProfilesFocusInteraction.RegisterHandler(interaction =>
+            {
+                btnConfigurations.Focus();
+                interaction.SetOutput(RxVoid.Default);
+            }).DisposeWith(disposables);
+
+            ViewModel.ProfilesViewModel.DispatcherRefreshServersBizInteraction.RegisterHandler(interaction =>
+            {
+                interaction.SetOutput(RxVoid.Default);
+            }).DisposeWith(disposables);
+
+            ViewModel.ProfilesViewModel.AdjustMainLvColWidthInteraction.RegisterHandler(interaction =>
+            {
+                interaction.SetOutput(RxVoid.Default);
+            }).DisposeWith(disposables);
 
             var layoutBindings = new SingleReplaceableDisposable().DisposeWith(disposables);
             this.WhenAnyValue(v => v.ViewModel.MainGirdOrientation)
@@ -251,6 +305,40 @@ public partial class MainWindow : WindowBase<MainWindowViewModel>
         ProcUtils.ProcessStart($"{Utils.Base64Decode(Global.PromotionUrl)}?t={DateTime.Now.Ticks}");
     }
 
+    private void BtnConfigurations_Click(object? sender, RoutedEventArgs e)
+    {
+        if (_configurationsWindow?.IsVisible == true)
+        {
+            _configurationsWindow.Activate();
+            return;
+        }
+
+        _configurationsWindow = new ConfigurationsWindow(ViewModel);
+        _configurationsWindow.Closed += (_, _) => _configurationsWindow = null;
+        _configurationsWindow.Show(this);
+    }
+
+    private async void BtnAddConfiguration_Click(object? sender, RoutedEventArgs e)
+    {
+        await new AddConfigurationWindow(ViewModel).ShowDialog(this);
+    }
+
+    private void RefreshStatusIcon()
+    {
+        if (Application.Current?.ApplicationLifetime is not IClassicDesktopStyleApplicationLifetime desktop)
+        {
+            return;
+        }
+
+        desktop.MainWindow!.Icon = AvaUtils.GetAppIcon(_config.GetTrayProxyType());
+        var icons = TrayIcon.GetIcons(Application.Current);
+        if (icons.Count > 0)
+        {
+            icons[0].Icon = desktop.MainWindow.Icon;
+            TrayIcon.SetIcons(Application.Current, icons);
+        }
+    }
+
     private void MenuSettingsSetUWP_Click(object? sender, RoutedEventArgs e)
     {
         ProcUtils.ProcessStart(Utils.GetBinPath("EnableLoopback.exe"));
@@ -282,11 +370,22 @@ public partial class MainWindow : WindowBase<MainWindowViewModel>
 
     private void MenuCheckUpdate_Click(object? sender, RoutedEventArgs e)
     {
-        _checkUpdateView ??= new CheckUpdateView();
-        _checkUpdateView.ViewModel = ViewModel?.CheckUpdateViewModel;
-        DialogHost.Show(_checkUpdateView);
-
-        AppEvents.HasUpdateNotified.Publish(false);
+        if (_updatesWindow?.IsVisible == true)
+        {
+            _updatesWindow.Activate();
+            return;
+        }
+        _updatesWindow = new Window
+        {
+            Title = ResUI.menuCheckUpdate,
+            Icon = Icon,
+            Width = 780,
+            Height = 370,
+            WindowStartupLocation = WindowStartupLocation.CenterOwner,
+            Content = new CheckUpdateView { ViewModel = ViewModel.CheckUpdateViewModel }
+        };
+        _updatesWindow.Closed += (_, _) => _updatesWindow = null;
+        _updatesWindow.Show(this);
     }
 
     private void MenuBackupAndRestore_Click(object? sender, RoutedEventArgs e)
@@ -371,6 +470,8 @@ public partial class MainWindow : WindowBase<MainWindowViewModel>
     protected override void OnLoaded(object? sender, RoutedEventArgs e)
     {
         base.OnLoaded(sender, e);
+        Width = 340;
+        Height = 560;
         if (_config.UiItem.AutoHideStartup)
         {
             ShowHideWindow(false);

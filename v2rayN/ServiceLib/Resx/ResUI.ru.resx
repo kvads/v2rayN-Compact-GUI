@@ -1971,4 +1971,30 @@
   <data name="TransportPathTip6" xml:space="preserve">
     <value>Удаленная папка XDRIVE</value>
   </data>
+  <data name="ToggleProxy" xml:space="preserve"><value>Включить или выключить прокси</value></data>
+  <data name="SystemProxy" xml:space="preserve"><value>Системный прокси</value></data>
+  <data name="OpenConfigurations" xml:space="preserve"><value>Открыть список конфигураций</value></data>
+  <data name="ActiveConfiguration" xml:space="preserve"><value>Активная конфигурация</value></data>
+  <data name="SelectAnother" xml:space="preserve"><value>Нажмите, чтобы выбрать другую</value></data>
+  <data name="Configurations" xml:space="preserve"><value>Конфигурации</value></data>
+  <data name="AddFromClipboard" xml:space="preserve"><value>Добавить из буфера</value></data>
+  <data name="AddConfiguration" xml:space="preserve"><value>Добавить конфигурацию</value></data>
+  <data name="PasteConfigurationLink" xml:space="preserve"><value>Вставьте ссылку vmess, vless, trojan или другую поддерживаемую строку.</value></data>
+  <data name="Add" xml:space="preserve"><value>Добавить</value></data>
+  <data name="Connected" xml:space="preserve"><value>Подключено</value></data>
+  <data name="Disconnected" xml:space="preserve"><value>Отключено</value></data>
+  <data name="Connect" xml:space="preserve"><value>Подключиться</value></data>
+  <data name="Disconnect" xml:space="preserve"><value>Отключиться</value></data>
+  <data name="SearchConfigurations" xml:space="preserve"><value>Поиск конфигураций</value></data>
+  <data name="RealDelayLabel" xml:space="preserve"><value>Реальная задержка (мс)</value></data>
+  <data name="NoConfigurations" xml:space="preserve"><value>Конфигурации не найдены</value></data>
+  <data name="CheckingUpdates" xml:space="preserve"><value>Проверка обновлений…</value></data>
+  <data name="InstallingUpdates" xml:space="preserve"><value>Установка обновлений…</value></data>
+  <data name="InstallUpdates" xml:space="preserve"><value>Установить обновления</value></data>
+  <data name="PackagesCurrent" xml:space="preserve"><value>Всё актуально</value></data>
+  <data name="UpdateFailed" xml:space="preserve"><value>Повторить проверку</value></data>
+  <data name="NoUpdateTargets" xml:space="preserve"><value>Пакеты не выбраны</value></data>
+  <data name="ConnectionMode" xml:space="preserve"><value>Режим подключения</value></data>
+  <data name="TunModeLabel" xml:space="preserve"><value>TUN</value></data>
+  <data name="ConnectionModeHint" xml:space="preserve"><value>Системный прокси действует для приложений, которые используют настройки прокси в системе. TUN охватывает и остальные приложения и может потребовать прав администратора.</value></data>
 </root>

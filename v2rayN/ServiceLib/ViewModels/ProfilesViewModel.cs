@@ -287,6 +287,15 @@ public partial class ProfilesViewModel : MyReactiveObject
 
         if (result.Delay.IsNotEmpty())
         {
+            var display = int.TryParse(result.Delay, out var ms) ? ProfileItemModel.FormatDelay(ms) : result.Delay;
+            if (result.DelayType == ESpeedActionType.Tcping)
+            {
+                item.TcpDelayText = display;
+            }
+            else if (result.DelayType == ESpeedActionType.Realping)
+            {
+                item.RealDelayText = display;
+            }
             item.Delay = result.Delay.ToInt();
             item.DelayVal = result.Delay ?? string.Empty;
         }
@@ -424,8 +433,10 @@ public partial class ProfilesViewModel : MyReactiveObject
                         Sort = t33?.Sort ?? 0,
                         Delay = t33?.Delay ?? 0,
                         Speed = t33?.Speed ?? 0,
+                        TcpDelayText = ProfileItemModel.FormatDelay(t33?.TcpDelay),
+                        RealDelayText = ProfileItemModel.FormatDelay(t33?.RealDelay),
                         DelayVal = t33?.Delay != 0 ? $"{t33?.Delay}" : string.Empty,
-                        SpeedVal = t33?.Speed > 0 ? $"{t33?.Speed}" : t33?.Message ?? string.Empty,
+                        SpeedVal = t33?.Speed > 0 ? $"{t33?.Speed}" : string.IsNullOrEmpty(t33?.Message) ? "—" : t33.Message,
                         IpInfo = t33?.IpInfo ?? string.Empty,
                         TodayDown = t22 == null ? "" : Utils.HumanFy(t22.TodayDown),
                         TodayUp = t22 == null ? "" : Utils.HumanFy(t22.TodayUp),
@@ -463,11 +474,16 @@ public partial class ProfilesViewModel : MyReactiveObject
 
     public async Task EditServerAsync()
     {
-        if (string.IsNullOrEmpty(SelectedProfile?.IndexId))
+        await EditServerAsync(SelectedProfile?.IndexId);
+    }
+
+    public async Task EditServerAsync(string? indexId)
+    {
+        if (string.IsNullOrEmpty(indexId))
         {
             return;
         }
-        var item = await ConfigDbQuery.GetProfileItem(SelectedProfile.IndexId);
+        var item = await ConfigDbQuery.GetProfileItem(indexId);
         if (item is null)
         {
             NoticeManager.Instance.Enqueue(ResUI.PleaseSelectServer);
@@ -750,6 +766,25 @@ public partial class ProfilesViewModel : MyReactiveObject
             return;
         }
 
+        RunSpeedTest(actionType, lstSelected);
+    }
+
+    public async Task TestProfileAsync(ProfileItemModel profile, ESpeedActionType action)
+    {
+        if (profile.ConfigType == EConfigType.Custom)
+        {
+            NoticeManager.Instance.Enqueue(ResUI.MsgNotSupport);
+            return;
+        }
+        var item = await ConfigDbQuery.GetProfileItem(profile.IndexId);
+        if (item != null)
+        {
+            RunSpeedTest(action, [item]);
+        }
+    }
+
+    private void RunSpeedTest(ESpeedActionType actionType, List<ProfileItem> lstSelected)
+    {
         _speedtestService ??= new SpeedtestService(_config, async (SpeedTestResult result) =>
         {
             RxSchedulers.MainThreadScheduler.Schedule(() =>

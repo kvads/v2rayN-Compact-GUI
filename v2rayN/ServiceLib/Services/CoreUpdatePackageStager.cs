@@ -1,9 +1,9 @@
 using System.Formats.Tar;
 using System.IO.Compression;
 
-namespace v2rayN.WebAPI.Services;
+namespace ServiceLib.Services;
 
-internal static class CoreUpdatePackageStager
+public static class CoreUpdatePackageStager
 {
     private const int MaxPackageEntries = 4096;
     private const long MaxExpandedBytes = 512L * 1024 * 1024;

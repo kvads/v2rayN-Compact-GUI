@@ -4,6 +4,7 @@ public partial class StatusBarViewModel : MyReactiveObject
 {
     public Interaction<string, RxVoid> SetClipboardDataInteraction { get; } = new();
     public Interaction<RxVoid, string?> PasswordInputInteraction { get; } = new();
+    public Interaction<RxVoid, bool> ReloadConnectionInteraction { get; } = new();
     public Interaction<RxVoid, RxVoid> DispatcherRefreshIconInteraction { get; } = new();
     public EventChannel<bool> SubscriptionsUpdateRequested { get; } = new();
     public EventChannel<bool?> ShowHideWindowRequested { get; } = new();
@@ -51,9 +52,25 @@ public partial class StatusBarViewModel : MyReactiveObject
     public ReactiveCommand<RxVoid, RxVoid> SystemProxySetCmd { get; }
     public ReactiveCommand<RxVoid, RxVoid> SystemProxyNothingCmd { get; }
     public ReactiveCommand<RxVoid, RxVoid> SystemProxyPacCmd { get; }
+    public ReactiveCommand<RxVoid, RxVoid> ToggleConnectionCmd { get; }
+
+    [Reactive]
+    public partial int ConnectionModeIndex { get; set; }
+
+    [Reactive]
+    public partial bool CanChangeConnection { get; set; } = true;
 
     [Reactive]
     public partial int SystemProxySelected { get; set; }
+
+    [Reactive]
+    public partial bool IsConnected { get; set; }
+
+    [Reactive]
+    public partial string ConnectionActionText { get; set; } = SimpleUiText.Connect;
+
+    [Reactive]
+    public partial string ConnectionStatusText { get; set; } = SimpleUiText.Disconnected;
 
     [Reactive]
     public partial bool BlSystemProxyPacVisible { get; set; }
@@ -99,14 +116,13 @@ public partial class StatusBarViewModel : MyReactiveObject
         BlSystemProxyPacVisible = Utils.IsWindows();
         BlIsNonWindows = Utils.IsNonWindows();
 
-        if (_config.TunModeItem.EnableTun && AllowEnableTun())
+        var initial = DesktopConnection.Read(_config);
+        if (initial.EnableTun)
         {
-            EnableTun = true;
+            initial = (initial with { PreferTun = true }).Connect(AllowEnableTun());
         }
-        else
-        {
-            _config.TunModeItem.EnableTun = EnableTun = false;
-        }
+        initial.Write(_config);
+        RefreshConnectionState();
 
         #region WhenAnyValue && ReactiveCommand
 
@@ -120,7 +136,12 @@ public partial class StatusBarViewModel : MyReactiveObject
             .SubscribeAsync(async _ => await DoSystemProxySelected());
 
         this.WhenAnyValue(x => x.EnableTun)
-            .SubscribeAsync(async _ => await DoEnableTun());
+            .Where(on => CanChangeConnection && on != _config.TunModeItem.EnableTun)
+            .SubscribeAsync(async on => await ApplyConnection((DesktopConnection.Read(_config) with { PreferTun = on }).Connect(on)));
+
+        this.WhenAnyValue(x => x.ConnectionModeIndex)
+            .Where(index => CanChangeConnection && index is 0 or 1 && (index == 1) != _config.TunModeItem.PreferTun)
+            .SubscribeAsync(async index => await ApplyConnection(DesktopConnection.Read(_config).SelectMode(index == 1)));
 
         CopyProxyCmdToClipboardCmd = ReactiveCommand.CreateFromTask(async () =>
         {
@@ -177,6 +198,9 @@ public partial class StatusBarViewModel : MyReactiveObject
         {
             await SetListenerType(ESysProxyType.Pac);
         });
+        ToggleConnectionCmd = ReactiveCommand.CreateFromTask(
+            () => ApplyConnection(DesktopConnection.Read(_config).Connect(!IsConnected)),
+            this.WhenAnyValue(vm => vm.CanChangeConnection));
 
         #endregion WhenAnyValue && ReactiveCommand
 
@@ -202,8 +226,7 @@ public partial class StatusBarViewModel : MyReactiveObject
         await ConfigDbHandler.InitBuiltinRouting();
         await RefreshRoutingsMenu();
         await InboundDisplayStatus();
-        // The view refreshes its icon on initialization; interaction handlers are not registered yet.
-        await ChangeSystemProxyAsync(_config.SystemProxyItem.SysProxyType, false);
+        await SysProxyHandler.UpdateSysProxy(_config, false);
     }
 
     private async Task CopyProxyCmdToClipboard()
@@ -282,7 +305,7 @@ public partial class StatusBarViewModel : MyReactiveObject
         }
         if (result.Time > 0)
         {
-            ProfileExManager.Instance.SetTestDelay(item.IndexId, result.Time);
+            ProfileExManager.Instance.SetTestDelay(item.IndexId, result.Time, ESpeedActionType.Realping);
         }
 
         NoticeManager.Instance.SendMessageEx(msg);
@@ -307,33 +330,100 @@ public partial class StatusBarViewModel : MyReactiveObject
 
     #region System proxy and Routings
 
-    private async Task SetListenerType(ESysProxyType type)
-    {
-        if (_config.SystemProxyItem.SysProxyType == type)
-        {
-            return;
-        }
-        _config.SystemProxyItem.SysProxyType = type;
-        await ChangeSystemProxyAsync(type, true);
-        NoticeManager.Instance.SendMessageEx($"{ResUI.TipChangeSystemProxy} - {_config.SystemProxyItem.SysProxyType}");
+    private Task SetListenerType(ESysProxyType type) =>
+        ApplyConnection(DesktopConnection.Read(_config).SelectProxy(type));
 
-        SystemProxySelected = (int)_config.SystemProxyItem.SysProxyType;
-        await ConfigTextHandler.SaveConfig();
+    private async Task ApplyConnection(DesktopConnection next)
+    {
+        var previous = DesktopConnection.Read(_config);
+        if (!CanChangeConnection || next == previous) return;
+        CanChangeConnection = false;
+        try
+        {
+            if (next.EnableTun && !previous.EnableTun && await ConfigTextHandler.GetDefaultServer() == null)
+            {
+                NoticeManager.Instance.Enqueue(ResUI.CheckServerSettings);
+                return;
+            }
+            if (next.EnableTun && !previous.EnableTun && !AllowEnableTun())
+            {
+                if (Utils.IsWindows())
+                {
+                    // The elevated instance reads these settings at startup.
+                    next.Write(_config);
+                    if (await ConfigTextHandler.SaveConfig() != 0)
+                    {
+                        previous.Write(_config);
+                        NoticeManager.Instance.Enqueue(ResUI.OperationFailed);
+                        return;
+                    }
+                    if (!await AppManager.Instance.RebootAsAdmin())
+                    {
+                        previous.Write(_config);
+                        await ConfigTextHandler.SaveConfig();
+                    }
+                    return;
+                }
+
+                ShowHideWindowRequested.Publish(true);
+                if ((await PasswordInputInteraction.HandleSafe(RxVoid.Default)).IsNullOrEmpty()) return;
+            }
+
+            next.Write(_config);
+            if (next.EnableTun != previous.EnableTun)
+            {
+                var running = await ReloadConnectionInteraction.HandleSafe(RxVoid.Default);
+                if (!running && next.IsConnected)
+                {
+                    // Restore the old core and proxy when a live handover fails.
+                    previous.Write(_config);
+                    if (!await ReloadConnectionInteraction.HandleSafe(RxVoid.Default))
+                    {
+                        previous.Connect(false).Write(_config);
+                        if (previous.EnableTun) await ReloadConnectionInteraction.HandleSafe(RxVoid.Default);
+                    }
+                    NoticeManager.Instance.Enqueue(ResUI.FailedToRunCore);
+                }
+            }
+            if (previous.Proxy != _config.SystemProxyItem.SysProxyType)
+            {
+                await SysProxyHandler.UpdateSysProxy(_config, false);
+                NoticeManager.Instance.SendMessageEx($"{ResUI.TipChangeSystemProxy} - {_config.SystemProxyItem.SysProxyType}");
+            }
+            if (await ConfigTextHandler.SaveConfig() != 0) NoticeManager.Instance.Enqueue(ResUI.OperationFailed);
+        }
+        finally
+        {
+            RefreshConnectionState();
+            CanChangeConnection = true;
+        }
+        if (next.EnableTun != previous.EnableTun || next.Proxy != previous.Proxy)
+        {
+            await DispatcherRefreshIconInteraction.HandleSafe(RxVoid.Default);
+        }
     }
 
-    public async Task ChangeSystemProxyAsync(ESysProxyType type, bool blChange)
+    private void RefreshConnectionState()
     {
-        await SysProxyHandler.UpdateSysProxy(_config, false);
-
+        var state = DesktopConnection.Read(_config);
+        var type = state.Proxy;
+        EnableTun = state.EnableTun;
+        ConnectionModeIndex = state.PreferTun ? 1 : 0;
+        SystemProxySelected = (int)type;
         BlSystemProxyClear = type == ESysProxyType.ForcedClear;
         BlSystemProxySet = type == ESysProxyType.ForcedChange;
         BlSystemProxyNothing = type == ESysProxyType.Unchanged;
         BlSystemProxyPac = type == ESysProxyType.Pac;
+        IsConnected = state.IsConnected;
+        ConnectionActionText = IsConnected ? SimpleUiText.Disconnect : SimpleUiText.Connect;
+        ConnectionStatusText = IsConnected ? SimpleUiText.Connected : SimpleUiText.Disconnected;
+    }
 
-        if (blChange)
-        {
-            await DispatcherRefreshIconInteraction.HandleSafe(RxVoid.Default);
-        }
+    internal async Task DisconnectFailedTunAsync()
+    {
+        if (!CanChangeConnection || !_config.TunModeItem.EnableTun) return;
+        NoticeManager.Instance.Enqueue(ResUI.FailedToRunCore);
+        await ApplyConnection(DesktopConnection.Read(_config).Connect(false));
     }
 
     public async Task RefreshRoutingsMenu()
@@ -373,39 +463,6 @@ public partial class StatusBarViewModel : MyReactiveObject
             return;
         }
         await SetListenerType((ESysProxyType)SystemProxySelected);
-    }
-
-    private async Task DoEnableTun()
-    {
-        if (_config.TunModeItem.EnableTun == EnableTun)
-        {
-            return;
-        }
-
-        _config.TunModeItem.EnableTun = EnableTun;
-
-        if (EnableTun && AllowEnableTun() == false)
-        {
-            // When running as a non-administrator, reboot to administrator mode
-            if (Utils.IsWindows())
-            {
-                _config.TunModeItem.EnableTun = false;
-                await AppManager.Instance.RebootAsAdmin();
-                return;
-            }
-            else
-            {
-                var password = await PasswordInputInteraction.HandleSafe(RxVoid.Default);
-                if (password.IsNullOrEmpty())
-                {
-                    _config.TunModeItem.EnableTun = false;
-                    return;
-                }
-            }
-        }
-
-        await ConfigTextHandler.SaveConfig();
-        ReloadRequested.Publish();
     }
 
     private bool AllowEnableTun()

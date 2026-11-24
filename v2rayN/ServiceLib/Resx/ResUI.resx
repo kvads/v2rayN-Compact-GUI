@@ -1989,4 +1989,30 @@ The "Get Certificate" action may fail if a self-signed certificate is used or if
   <data name="MsgCheckUpdateViaGitRefsFailed" xml:space="preserve">
     <value>Git references for {0} are unavailable</value>
   </data>
+  <data name="ToggleProxy" xml:space="preserve"><value>Toggle proxy</value></data>
+  <data name="SystemProxy" xml:space="preserve"><value>System proxy</value></data>
+  <data name="OpenConfigurations" xml:space="preserve"><value>Open configurations</value></data>
+  <data name="ActiveConfiguration" xml:space="preserve"><value>Active configuration</value></data>
+  <data name="SelectAnother" xml:space="preserve"><value>Tap to choose another</value></data>
+  <data name="Configurations" xml:space="preserve"><value>Configurations</value></data>
+  <data name="AddFromClipboard" xml:space="preserve"><value>Add from clipboard</value></data>
+  <data name="AddConfiguration" xml:space="preserve"><value>Add configuration</value></data>
+  <data name="PasteConfigurationLink" xml:space="preserve"><value>Paste a vmess, vless, trojan or other supported link.</value></data>
+  <data name="Add" xml:space="preserve"><value>Add</value></data>
+  <data name="Connected" xml:space="preserve"><value>Connected</value></data>
+  <data name="Disconnected" xml:space="preserve"><value>Disconnected</value></data>
+  <data name="Connect" xml:space="preserve"><value>Connect</value></data>
+  <data name="Disconnect" xml:space="preserve"><value>Disconnect</value></data>
+  <data name="SearchConfigurations" xml:space="preserve"><value>Search configurations</value></data>
+  <data name="RealDelayLabel" xml:space="preserve"><value>Real delay (ms)</value></data>
+  <data name="NoConfigurations" xml:space="preserve"><value>No matching configurations</value></data>
+  <data name="CheckingUpdates" xml:space="preserve"><value>Checking for updates…</value></data>
+  <data name="InstallingUpdates" xml:space="preserve"><value>Installing updates…</value></data>
+  <data name="InstallUpdates" xml:space="preserve"><value>Install updates</value></data>
+  <data name="PackagesCurrent" xml:space="preserve"><value>Up to date</value></data>
+  <data name="UpdateFailed" xml:space="preserve"><value>Retry updates</value></data>
+  <data name="NoUpdateTargets" xml:space="preserve"><value>No packages selected</value></data>
+  <data name="ConnectionMode" xml:space="preserve"><value>Connection mode</value></data>
+  <data name="TunModeLabel" xml:space="preserve"><value>TUN</value></data>
+  <data name="ConnectionModeHint" xml:space="preserve"><value>System proxy works with apps that use the system proxy settings. TUN also routes traffic from other apps and may require administrator privileges.</value></data>
 </root>

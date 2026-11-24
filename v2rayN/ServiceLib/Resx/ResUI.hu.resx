@@ -1806,4 +1806,30 @@ The "Get Certificate" action may fail if a self-signed certificate is used or if
   <data name="TransportPathTip6" xml:space="preserve">
     <value>XDRIVE távoli mappa</value>
   </data>
+  <data name="ToggleProxy" xml:space="preserve"><value>Proxy be- vagy kikapcsolása</value></data>
+  <data name="SystemProxy" xml:space="preserve"><value>Rendszerproxy</value></data>
+  <data name="OpenConfigurations" xml:space="preserve"><value>Konfigurációk megnyitása</value></data>
+  <data name="ActiveConfiguration" xml:space="preserve"><value>Aktív konfiguráció</value></data>
+  <data name="SelectAnother" xml:space="preserve"><value>Kattintson másik kiválasztásához</value></data>
+  <data name="Configurations" xml:space="preserve"><value>Konfigurációk</value></data>
+  <data name="AddFromClipboard" xml:space="preserve"><value>Hozzáadás vágólapról</value></data>
+  <data name="AddConfiguration" xml:space="preserve"><value>Konfiguráció hozzáadása</value></data>
+  <data name="PasteConfigurationLink" xml:space="preserve"><value>Illesszen be egy vmess, vless, trojan vagy más támogatott hivatkozást.</value></data>
+  <data name="Add" xml:space="preserve"><value>Hozzáadás</value></data>
+  <data name="Connected" xml:space="preserve"><value>Csatlakoztatva</value></data>
+  <data name="Disconnected" xml:space="preserve"><value>Nincs csatlakoztatva</value></data>
+  <data name="Connect" xml:space="preserve"><value>Csatlakozás</value></data>
+  <data name="Disconnect" xml:space="preserve"><value>Leválasztás</value></data>
+  <data name="SearchConfigurations" xml:space="preserve"><value>Konfigurációk keresése</value></data>
+  <data name="RealDelayLabel" xml:space="preserve"><value>Valós késés (ms)</value></data>
+  <data name="NoConfigurations" xml:space="preserve"><value>Nincs találat</value></data>
+  <data name="CheckingUpdates" xml:space="preserve"><value>Frissítések keresése…</value></data>
+  <data name="InstallingUpdates" xml:space="preserve"><value>Frissítések telepítése…</value></data>
+  <data name="InstallUpdates" xml:space="preserve"><value>Frissítések telepítése</value></data>
+  <data name="PackagesCurrent" xml:space="preserve"><value>Minden naprakész</value></data>
+  <data name="UpdateFailed" xml:space="preserve"><value>Újrapróbálás</value></data>
+  <data name="NoUpdateTargets" xml:space="preserve"><value>Nincs kiválasztott csomag</value></data>
+  <data name="ConnectionMode" xml:space="preserve"><value>Kapcsolati mód</value></data>
+  <data name="TunModeLabel" xml:space="preserve"><value>TUN</value></data>
+  <data name="ConnectionModeHint" xml:space="preserve"><value>A rendszerproxy a rendszer proxybeállításait követő alkalmazásokkal működik. A TUN más alkalmazások forgalmát is kezeli, és rendszergazdai jogosultságot igényelhet.</value></data>
 </root>

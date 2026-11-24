@@ -62,12 +62,12 @@ public class CoreManager
 
     /// <param name="mainContext">Resolved main context (with pre-socks ports already merged if applicable).</param>
     /// <param name="preContext">Optional pre-socks context passed to <see cref="CoreStartPreService"/>.</param>
-    public async Task LoadCore(CoreConfigContext? mainContext, CoreConfigContext? preContext)
+    public async Task<bool> LoadCore(CoreConfigContext? mainContext, CoreConfigContext? preContext)
     {
         if (mainContext == null)
         {
             await UpdateFunc(false, ResUI.CheckServerSettings);
-            return;
+            return false;
         }
 
         var node = mainContext.Node;
@@ -76,7 +76,7 @@ public class CoreManager
         if (result.Success != true)
         {
             await UpdateFunc(true, result.Msg);
-            return;
+            return false;
         }
 
         await UpdateFunc(false, $"{node.GetSummary()}");
@@ -93,7 +93,7 @@ public class CoreManager
 
         if (!await CoreStart(mainContext))
         {
-            return;
+            return false;
         }
 
         await WaitForProxyPort(preContext);
@@ -102,7 +102,7 @@ public class CoreManager
             // Keep the ordinary proxy core available when only the optional TUN
             // protection core failed. The error is reported above and the caller
             // must not treat this as a successful TUN startup.
-            return;
+            return false;
         }
 
         AppManager.Instance.RunningCoreType = preContext?.RunCoreType ?? mainContext.RunCoreType;
@@ -111,7 +111,11 @@ public class CoreManager
         {
             await UpdateFunc(true, $"{node.GetSummary()}");
         }
+        return true;
     }
+
+    internal bool IsCoreRunning(bool hasPreCore) =>
+        _processService is { HasExited: false } && (!hasPreCore || _processPreService is { HasExited: false });
 
     public async Task<ProcessService?> LoadCoreConfigSpeedtest(List<ServerTestItem> selecteds)
     {

@@ -7,8 +7,11 @@ public partial class CheckUpdateModel : ReactiveObject
     public bool ShowCheckPreRelease { get; set; }
     public ECoreType? CoreType { get; set; }
     [Reactive] public partial string? Remarks { get; set; }
-    public string? FileName { get; set; }
-    public bool? IsFinished { get; set; }
+    public string Installed { get; set; } = "—";
+    public string DisplayName => CoreType == ECoreType.sing_box ? "sing-box" : IsGeoFile ? "Geo" : CoreType.ToString();
+    public UpdateResult? Release { get; set; }
+    public bool Available { get; set; }
+    public bool CheckFailed { get; set; }
     public bool IsGeoFile { get; set; }
     public string CoreTypeForStorage => IsGeoFile ? "GeoFiles" : (CoreType?.ToString() ?? "");
 }

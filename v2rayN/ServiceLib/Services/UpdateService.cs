@@ -8,109 +8,6 @@ public partial class UpdateService(DownloadService downloadService, Config confi
 
     private GitHubReleaseSource ReleaseSource => field ??= new(downloadService, progress => UpdateFunc(false, GetProgressMsg(progress)));
 
-    public async Task CheckUpdateGuiN(bool preRelease, CancellationToken cancellationToken = default)
-    {
-        var url = string.Empty;
-        var fileName = string.Empty;
-
-        downloadService.UpdateCompleted += (sender2, args) =>
-        {
-            if (args.Success)
-            {
-                _ = UpdateFunc(false, ResUI.MsgDownloadV2rayCoreSuccessfully);
-                _ = UpdateFunc(true, Utils.UrlEncode(fileName));
-            }
-            else
-            {
-                _ = UpdateFunc(false, args.Msg);
-            }
-        };
-        downloadService.Error += (sender2, args) =>
-        {
-            var ex = args.GetException();
-            var message = ex.Message;
-            if (ex.InnerException != null)
-            {
-                message += " | " + ex.InnerException.Message;
-            }
-            _ = UpdateFunc(false, message);
-        };
-
-        await UpdateFunc(false, string.Format(ResUI.MsgStartUpdating, ECoreType.v2rayN));
-        var result = await CheckUpdateAsync(ECoreType.v2rayN, preRelease, cancellationToken);
-        if (result.Success)
-        {
-            await UpdateFunc(false, string.Format(ResUI.MsgParsingSuccessfully, ECoreType.v2rayN));
-            await UpdateFunc(false, result.Msg);
-
-            url = result.Url!;
-            fileName = Utils.GetTempPath(Utils.GetGuid());
-            await downloadService.DownloadFileAsync(new() { FileUrl = url, FilePath = fileName }, cancellationToken);
-        }
-        else
-        {
-            await UpdateFunc(false, result.Msg);
-        }
-    }
-
-    public async Task CheckUpdateCore(ECoreType type, bool preRelease, CancellationToken cancellationToken = default)
-    {
-        var url = string.Empty;
-        var fileName = string.Empty;
-
-        downloadService.UpdateCompleted += (sender2, args) =>
-        {
-            if (args.Success)
-            {
-                _ = UpdateFunc(false, ResUI.MsgDownloadV2rayCoreSuccessfully);
-                _ = UpdateFunc(false, ResUI.MsgUnpacking);
-
-                try
-                {
-                    _ = UpdateFunc(true, fileName);
-                }
-                catch (Exception ex)
-                {
-                    _ = UpdateFunc(false, ex.Message);
-                }
-            }
-            else
-            {
-                _ = UpdateFunc(false, args.Msg);
-            }
-        };
-        downloadService.Error += (sender2, args) =>
-        {
-            var ex = args.GetException();
-            var message = ex.Message;
-            if (ex.InnerException != null)
-            {
-                message += " | " + ex.InnerException.Message;
-            }
-            _ = UpdateFunc(false, message);
-        };
-
-        await UpdateFunc(false, string.Format(ResUI.MsgStartUpdating, type));
-        var result = await CheckUpdateAsync(type, preRelease, cancellationToken);
-        if (result.Success)
-        {
-            await UpdateFunc(false, string.Format(ResUI.MsgParsingSuccessfully, type));
-            await UpdateFunc(false, result.Msg);
-
-            url = result.Url!;
-            var ext = url.Contains(".tar.gz") ? ".tar.gz" : Path.GetExtension(url);
-            fileName = Utils.GetTempPath(Utils.GetGuid() + ext);
-            await downloadService.DownloadFileAsync(new() { FileUrl = url, FilePath = fileName }, cancellationToken);
-        }
-        else
-        {
-            if (!result.Msg.IsNullOrEmpty())
-            {
-                await UpdateFunc(false, result.Msg);
-            }
-        }
-    }
-
     public async Task<UpdateResult> CheckHasUpdateOnly(ECoreType type, bool preRelease, CancellationToken cancellationToken = default)
     {
         if (!CoreInfoManager.Instance.IsCheckUpdateSupported(type))
@@ -150,15 +47,19 @@ public partial class UpdateService(DownloadService downloadService, Config confi
 
     public async Task UpdateGeoFileAll(CancellationToken cancellationToken = default)
     {
-        var requests = new List<FileDownloadRequest>();
-        requests.AddRange(GetGeoFilesRequest());
-        requests.AddRange(GetOtherFilesRequest());
-        requests.AddRange(await GetSrsFileAllRequest());
-        // NOTE: srs files are more small, so we reverse the order to ensure a good download experience for the user.
-        requests.Reverse();
-        await DownloadGeoFiles(requests, cancellationToken);
+        var requests = await GetGeoRequests();
+        await GeoFileUpdates.SyncAsync(downloadService.Handler, requests, true, cancellationToken);
         await UpdateFunc(true, string.Format(ResUI.MsgDownloadGeoFileSuccessfully, "geo"));
     }
+
+    public async Task<bool> HasGeoUpdatesAsync(CancellationToken cancellationToken)
+    {
+        var requests = await GetGeoRequests();
+        return await GeoFileUpdates.SyncAsync(downloadService.Handler, requests, false, cancellationToken);
+    }
+
+    private async Task<List<FileDownloadRequest>> GetGeoRequests() =>
+        [.. GetGeoFilesRequest(), .. GetOtherFilesRequest(), .. await GetSrsFileAllRequest()];
 
     #region CheckUpdate private
 
@@ -190,7 +91,7 @@ public partial class UpdateService(DownloadService downloadService, Config confi
         }
 
         var tagName = await ReleaseSource.GetLatestTag(coreInfo, preRelease, cancellationToken);
-        if (string.IsNullOrEmpty(tagName))
+        if (string.IsNullOrEmpty(tagName) || new SemanticVersion(tagName).Equals(new SemanticVersion(0, 0, 0)))
         {
             return new UpdateResult(false, "");
         }
@@ -219,40 +120,25 @@ public partial class UpdateService(DownloadService downloadService, Config confi
     [GeneratedRegex(@"v?(?<version>\d+\.\d+\.\d+(?:-[0-9a-zA-Z.-]+)?(?:\+[0-9a-zA-Z.-]+)?)", RegexOptions.IgnoreCase)]
     private static partial Regex SemVerRegex();
 
-    private async Task<SemanticVersion> GetCoreVersion(ECoreType type, CancellationToken cancellationToken = default)
+    public static async Task<SemanticVersion?> GetInstalledVersionAsync(ECoreType type, CancellationToken token = default)
     {
-        try
+        var info = CoreInfoManager.Instance.GetCoreInfo(type);
+        if (info == null || !CoreInfoManager.Instance.IsCheckUpdateSupported(type))
         {
-            var coreInfo = CoreInfoManager.Instance.GetCoreInfo(type);
-            var filePath = string.Empty;
-            foreach (var name in coreInfo.CoreExes)
-            {
-                var vName = Utils.GetBinPath(Utils.GetExeName(name), coreInfo.CoreType.ToString());
-                if (File.Exists(vName))
-                {
-                    filePath = vName;
-                    break;
-                }
-            }
-
-            if (!File.Exists(filePath))
-            {
-                var msg = string.Format(ResUI.NotFoundCore, @"", "", "");
-                //ShowMsg(true, msg);
-                return new SemanticVersion("");
-            }
-
-            var result = await Utils.GetCliWrapOutput(filePath, coreInfo.VersionArg, cancellationToken);
-            var echo = result ?? "";
-            var version = SemVerRegex().Match(echo).Groups["version"].Value;
-            return new SemanticVersion(version);
+            return null;
         }
-        catch (Exception ex)
-        {
-            Logging.SaveLog(_tag, ex);
-            await UpdateFunc(false, ex.Message);
-            return new SemanticVersion("");
-        }
+        var executable = FindExecutable(info, Utils.GetBinPath("", type.ToString()));
+        return executable == null ? null : await ReadVersionAsync(info, executable, token);
+    }
+
+    internal static string? FindExecutable(CoreInfo info, string directory) =>
+        (info.CoreExes ?? []).Select(name => Path.Combine(directory, Utils.GetExeName(name))).FirstOrDefault(File.Exists);
+
+    internal static async Task<SemanticVersion?> ReadVersionAsync(CoreInfo info, string executable, CancellationToken token)
+    {
+        var output = await Utils.GetCliWrapOutput(executable, info.VersionArg, token);
+        var match = SemVerRegex().Match(output ?? "");
+        return match.Success ? new SemanticVersion(match.Groups["version"].Value) : null;
     }
 
     private async Task<UpdateResult> ParseDownloadUrl(ECoreType type, UpdateResult result, CancellationToken cancellationToken = default)
@@ -261,46 +147,18 @@ public partial class UpdateService(DownloadService downloadService, Config confi
         {
             var version = result.Version ?? new SemanticVersion(0, 0, 0);
             var coreInfo = CoreInfoManager.Instance.GetCoreInfo(type);
-            var coreUrl = await GetUrlFromCore(coreInfo) ?? string.Empty;
-            SemanticVersion curVersion;
-            string message;
-            string? url;
-            switch (type)
+            var coreUrl = GetUrlFromCore(coreInfo);
+            if (string.IsNullOrEmpty(coreUrl))
             {
-                case ECoreType.v2fly:
-                case ECoreType.Xray:
-                case ECoreType.v2fly_v5:
-                case ECoreType.mihomo:
-                    {
-                        curVersion = await GetCoreVersion(type, cancellationToken);
-                        message = string.Format(ResUI.IsLatestCore, type, curVersion.ToStandardVersionString("v"));
-                        url = string.Format(coreUrl, version);
-                        break;
-                    }
-
-                case ECoreType.sing_box:
-                    {
-                        curVersion = await GetCoreVersion(type, cancellationToken);
-                        message = string.Format(ResUI.IsLatestCore, type, curVersion.ToStandardVersionString("v"));
-                        url = string.Format(coreUrl, version, version.ToString().RemovePrefix("v"));
-                        break;
-                    }
-                case ECoreType.v2rayN:
-                    {
-                        curVersion = new SemanticVersion(Utils.GetVersionInfo());
-                        message = string.Format(ResUI.IsLatestN, type, curVersion.ToStandardVersionString("v"));
-                        url = string.Format(coreUrl, version);
-                        break;
-                    }
-                default:
-                    throw new ArgumentException("Type");
+                return new UpdateResult(false, ResUI.MsgNotSupport);
             }
-
-            if (curVersion >= version && !version.Equals(new SemanticVersion(0, 0, 0)))
+            var installed = await GetInstalledVersionAsync(type, cancellationToken);
+            if (installed != null && installed >= version)
             {
-                return new UpdateResult(false, message);
+                var message = string.Format(ResUI.IsLatestCore, type, installed.ToStandardVersionString("v"));
+                return new UpdateResult(false, message) { IsCurrent = true, Version = version };
             }
-
+            var url = string.Format(coreUrl, version, version.ToString().RemovePrefix("v"));
             result.Url = url;
             return result;
         }
@@ -312,33 +170,16 @@ public partial class UpdateService(DownloadService downloadService, Config confi
         }
     }
 
-    private async Task<string?> GetUrlFromCore(CoreInfo? coreInfo)
+    private static string? GetUrlFromCore(CoreInfo? coreInfo)
     {
         if (Utils.IsWindows())
         {
-            var url = RuntimeInformation.ProcessArchitecture switch
+            return RuntimeInformation.ProcessArchitecture switch
             {
                 Architecture.Arm64 => coreInfo?.DownloadUrlWinArm64,
                 Architecture.X64 => coreInfo?.DownloadUrlWin64,
                 _ => null,
             };
-
-            if (coreInfo?.CoreType != ECoreType.v2rayN)
-            {
-                return url;
-            }
-
-            //Check for avalonia desktop windows version
-            if (File.Exists(Path.Combine(Utils.GetBaseDirectory(), "libHarfBuzzSharp.dll")))
-            {
-                url = url?.Replace(".zip", "-desktop.zip");
-            }
-
-#if V2RAYN_IS_AOT
-            url = url?.Replace(".zip", "-aot.zip");
-#endif
-
-            return url;
         }
         else if (Utils.IsLinux())
         {
@@ -360,7 +201,7 @@ public partial class UpdateService(DownloadService downloadService, Config confi
                 _ => null,
             };
         }
-        return await Task.FromResult("");
+        return null;
     }
 
     #endregion CheckUpdate private
@@ -519,6 +360,10 @@ public partial class UpdateService(DownloadService downloadService, Config confi
                         ? Global.SingboxRulesetUrl
                         : _config.ConstItem.SrsSourceUrl;
 
+        if (srsName.Contains('/') || srsName.Contains('\\') || srsName.Contains(':') || srsName.IndexOfAny(Path.GetInvalidFileNameChars()) >= 0)
+        {
+            throw new InvalidDataException("Invalid rule-set name.");
+        }
         var fileName = $"{type}-{srsName}.srs";
         var targetPath = Path.Combine(Utils.GetBinPath("srss"), fileName);
         var url = string.Format(srsUrl, type, $"{type}-{srsName}", srsName);
@@ -529,69 +374,6 @@ public partial class UpdateService(DownloadService downloadService, Config confi
             FilePath = targetPath,
             DisplayFileName = fileName,
         };
-    }
-
-    private async Task DownloadGeoFiles(List<FileDownloadRequest> requests, CancellationToken cancellationToken = default)
-    {
-        var tmpFilePathDict = new Dictionary<string, string>();
-        var tmpFileRequests = new List<FileDownloadRequest>();
-        foreach (var request in requests)
-        {
-            var tmpFilePath = Utils.GetTempPath(Utils.GetGuid());
-            tmpFilePathDict[request.FilePath] = tmpFilePath;
-            tmpFileRequests.Add(request with
-            {
-                FilePath = tmpFilePath,
-            });
-        }
-
-        downloadService.UpdateCompleted += (sender2, args) =>
-        {
-            if (args.Success)
-            {
-                //_ = UpdateFunc(false, string.Format(ResUI.MsgDownloadGeoFileSuccessfully, fileName));
-
-                foreach (var request in requests)
-                {
-                    try
-                    {
-                        //if (File.Exists(tmpFileName))
-                        //{
-                        //    File.Copy(tmpFileName, targetPath, true);
-
-                        //    File.Delete(tmpFileName);
-                        //    //await    UpdateFunc(true, "");
-                        //}
-                        var tmpFileName = tmpFilePathDict[request.FilePath];
-                        if (File.Exists(tmpFileName))
-                        {
-                            File.Copy(tmpFileName, request.FilePath, true);
-                            File.Delete(tmpFileName);
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        _ = UpdateFunc(false, ex.Message);
-                    }
-                }
-            }
-            else
-            {
-                _ = UpdateFunc(false, args.Msg);
-            }
-        };
-        downloadService.Error += (sender2, args) =>
-        {
-            var ex = args.GetException();
-            var message = ex.Message;
-            if (ex.InnerException != null)
-            {
-                message += " | " + ex.InnerException.Message;
-            }
-            _ = UpdateFunc(false, message);
-        };
-
-        await downloadService.DownloadSmallFilesAsync(tmpFileRequests, cancellationToken);
     }
 
     #endregion Geo private

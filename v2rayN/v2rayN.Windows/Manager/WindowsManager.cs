@@ -13,7 +13,7 @@ public sealed class WindowsManager
     {
         try
         {
-            var index = (int)config.SystemProxyItem.SysProxyType;
+            var index = (int)config.GetTrayProxyType();
 
             //Load from routing setting
             var createdIcon = await GetNotifyIcon4Routing(config);
@@ -46,7 +46,7 @@ public sealed class WindowsManager
 
     public System.Windows.Media.ImageSource GetAppIcon(Config config)
     {
-        var index = (int)config.SystemProxyItem.SysProxyType + 1;
+        var index = (int)config.GetTrayProxyType() + 1;
         return BitmapFrame.Create(new Uri($"pack://application:,,,/Resources/NotifyIcon{index}.ico", UriKind.RelativeOrAbsolute));
     }
 
@@ -61,7 +61,7 @@ public sealed class WindowsManager
             }
 
             var color = ColorTranslator.FromHtml("#3399CC");
-            var index = (int)config.SystemProxyItem.SysProxyType;
+            var index = (int)config.GetTrayProxyType();
             if (index > 0)
             {
                 color = (new[] { Color.Red, Color.Purple, Color.DarkGreen, Color.Orange, Color.DarkSlateBlue, Color.RoyalBlue })[index - 1];

@@ -2,6 +2,8 @@ namespace v2rayN.Base;
 
 public class WindowBase<TViewModel> : ReactiveWindow<TViewModel> where TViewModel : class
 {
+    protected virtual string SizePreferenceKey => GetType().Name;
+
     public WindowBase()
     {
         Loaded += OnLoaded;
@@ -11,7 +13,7 @@ public class WindowBase<TViewModel> : ReactiveWindow<TViewModel> where TViewMode
     {
         try
         {
-            var sizeItem = ConfigTextHandler.GetWindowSizeItem(GetType().Name);
+            var sizeItem = ConfigTextHandler.GetWindowSizeItem(SizePreferenceKey);
             if (sizeItem == null)
             {
                 return;
@@ -32,7 +34,7 @@ public class WindowBase<TViewModel> : ReactiveWindow<TViewModel> where TViewMode
 
         try
         {
-            ConfigTextHandler.SaveWindowSizeItem(GetType().Name, Width, Height);
+            ConfigTextHandler.SaveWindowSizeItem(SizePreferenceKey, Width, Height);
         }
         catch { }
     }

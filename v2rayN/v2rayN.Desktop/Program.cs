@@ -30,6 +30,7 @@ internal class Program
         {
             var exePathKey = Utils.GetMd5(Utils.GetExePath());
             var rebootas = (Args ?? []).Any(t => t == Global.RebootAs);
+            if (rebootas) ProcUtils.WaitForPreviousInstance(Args!);
             ProgramStarted = new EventWaitHandle(false, EventResetMode.AutoReset, exePathKey, out var bCreatedNew);
             if (!rebootas && !bCreatedNew)
             {

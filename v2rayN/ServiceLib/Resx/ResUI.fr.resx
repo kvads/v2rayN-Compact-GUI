@@ -1803,4 +1803,30 @@ The "Get Certificate" action may fail if a self-signed certificate is used or if
   <data name="TransportPathTip6" xml:space="preserve">
     <value>Dossier distant XDRIVE</value>
   </data>
+  <data name="ToggleProxy" xml:space="preserve"><value>Activer ou désactiver le proxy</value></data>
+  <data name="SystemProxy" xml:space="preserve"><value>Proxy système</value></data>
+  <data name="OpenConfigurations" xml:space="preserve"><value>Ouvrir les configurations</value></data>
+  <data name="ActiveConfiguration" xml:space="preserve"><value>Configuration active</value></data>
+  <data name="SelectAnother" xml:space="preserve"><value>Appuyez pour en choisir une autre</value></data>
+  <data name="Configurations" xml:space="preserve"><value>Configurations</value></data>
+  <data name="AddFromClipboard" xml:space="preserve"><value>Ajouter depuis le presse-papiers</value></data>
+  <data name="AddConfiguration" xml:space="preserve"><value>Ajouter une configuration</value></data>
+  <data name="PasteConfigurationLink" xml:space="preserve"><value>Collez un lien vmess, vless, trojan ou un autre lien pris en charge.</value></data>
+  <data name="Add" xml:space="preserve"><value>Ajouter</value></data>
+  <data name="Connected" xml:space="preserve"><value>Connecté</value></data>
+  <data name="Disconnected" xml:space="preserve"><value>Déconnecté</value></data>
+  <data name="Connect" xml:space="preserve"><value>Se connecter</value></data>
+  <data name="Disconnect" xml:space="preserve"><value>Se déconnecter</value></data>
+  <data name="SearchConfigurations" xml:space="preserve"><value>Rechercher une configuration</value></data>
+  <data name="RealDelayLabel" xml:space="preserve"><value>Délai réel (ms)</value></data>
+  <data name="NoConfigurations" xml:space="preserve"><value>Aucune configuration trouvée</value></data>
+  <data name="CheckingUpdates" xml:space="preserve"><value>Recherche de mises à jour…</value></data>
+  <data name="InstallingUpdates" xml:space="preserve"><value>Installation en cours…</value></data>
+  <data name="InstallUpdates" xml:space="preserve"><value>Installer les mises à jour</value></data>
+  <data name="PackagesCurrent" xml:space="preserve"><value>Tout est à jour</value></data>
+  <data name="UpdateFailed" xml:space="preserve"><value>Réessayer</value></data>
+  <data name="NoUpdateTargets" xml:space="preserve"><value>Aucun paquet sélectionné</value></data>
+  <data name="ConnectionMode" xml:space="preserve"><value>Mode de connexion</value></data>
+  <data name="TunModeLabel" xml:space="preserve"><value>TUN</value></data>
+  <data name="ConnectionModeHint" xml:space="preserve"><value>Le proxy système fonctionne avec les applications qui suivent les paramètres proxy du système. TUN couvre aussi les autres applications et peut nécessiter des droits administrateur.</value></data>
 </root>

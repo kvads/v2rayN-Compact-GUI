@@ -11,12 +11,12 @@
     xmlns:view="clr-namespace:v2rayN.Views"
     xmlns:vms="clr-namespace:ServiceLib.ViewModels;assembly=ServiceLib"
     Title="v2rayN"
-    Width="1200"
-    Height="800"
-    MinWidth="800"
+    Width="340"
+    Height="560"
+    MinWidth="300"
     x:TypeArguments="vms:MainWindowViewModel"
     Icon="/Resources/v2rayN.ico"
-    ResizeMode="CanResizeWithGrip"
+    ResizeMode="NoResize"
     ShowInTaskbar="True"
     Style="{StaticResource WindowGlobal}"
     WindowStartupLocation="CenterScreen"
@@ -27,6 +27,40 @@
                 <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.Popupbox.xaml" />
             </ResourceDictionary.MergedDictionaries>
             <BooleanToVisibilityConverter x:Key="BoolToVisConverter" />
+            <Style x:Key="SimpleCard" TargetType="Border">
+                <Setter Property="Background" Value="#FFFFFFFF" />
+                <Setter Property="BorderBrush" Value="#FFE9E5F1" />
+                <Setter Property="BorderThickness" Value="1" />
+                <Setter Property="CornerRadius" Value="20" />
+                <Setter Property="Padding" Value="24" />
+                <Setter Property="Effect">
+                    <Setter.Value>
+                        <DropShadowEffect BlurRadius="20" Opacity="0.07" ShadowDepth="4" />
+                    </Setter.Value>
+                </Setter>
+            </Style>
+            <Style x:Key="SimpleSecondaryButton" BasedOn="{StaticResource MaterialDesignOutlinedButton}" TargetType="Button">
+                <Setter Property="Height" Value="44" />
+                <Setter Property="MinWidth" Value="44" />
+                <Setter Property="Padding" Value="16,0" />
+                <Setter Property="Margin" Value="0,0,8,0" />
+            </Style>
+            <Style x:Key="SimpleConnectButton" BasedOn="{StaticResource MaterialDesignRaisedButton}" TargetType="Button">
+                <Setter Property="Height" Value="72" />
+                <Setter Property="MinWidth" Value="260" />
+                <Setter Property="Padding" Value="28,0" />
+                <Setter Property="FontSize" Value="20" />
+                <Setter Property="FontWeight" Value="SemiBold" />
+                <Setter Property="Foreground" Value="White" />
+                <Setter Property="Background" Value="#FF7C3AED" />
+                <Setter Property="Content" Value="Подключиться" />
+                <Style.Triggers>
+                    <DataTrigger Binding="{Binding StatusBarViewModel.IsConnected}" Value="True">
+                        <Setter Property="Background" Value="#FF059669" />
+                        <Setter Property="Content" Value="Отключиться" />
+                    </DataTrigger>
+                </Style.Triggers>
+            </Style>
         </ResourceDictionary>
     </Window.Resources>
 
@@ -37,7 +71,157 @@
         SnackbarMessageQueue="{Binding ElementName=MainSnackbar, Path=MessageQueue}"
         Style="{StaticResource MaterialDesignEmbeddedDialogHost}">
         <Grid>
-            <DockPanel>
+            <Grid Background="#FF080B0D">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+
+                <StackPanel Margin="22,24,22,18" HorizontalAlignment="Center" VerticalAlignment="Center">
+                    <Button
+                        Width="170"
+                        Height="170"
+                        HorizontalAlignment="Center"
+                        Padding="0"
+                        AutomationProperties.Name="{Binding StatusBarViewModel.ConnectionActionText}"
+                        Command="{Binding StatusBarViewModel.ToggleConnectionCmd}">
+                        <Button.Template>
+                            <ControlTemplate TargetType="Button">
+                                <Grid>
+                                    <Ellipse
+                                        Fill="#FF0B0E11"
+                                        Stroke="#FFF59E5B"
+                                        StrokeThickness="2">
+                                        <Ellipse.Effect>
+                                            <DropShadowEffect BlurRadius="24" Color="#FFF59E5B" Opacity="0.28" ShadowDepth="0" />
+                                        </Ellipse.Effect>
+                                    </Ellipse>
+                                    <TextBlock
+                                        HorizontalAlignment="Center"
+                                        VerticalAlignment="Center"
+                                        FontSize="18"
+                                        FontWeight="SemiBold"
+                                        Foreground="#FFFFBE82"
+                                        Text="{Binding StatusBarViewModel.ConnectionStatusText}"
+                                        TextAlignment="Center" />
+                                </Grid>
+                            </ControlTemplate>
+                        </Button.Template>
+                    </Button>
+
+                    <Border Margin="0,30,0,0" HorizontalAlignment="Center" Padding="3" Background="#FF15191F" CornerRadius="18">
+                        <ListBox x:Name="lstConnectionMode" Padding="0" Background="Transparent" BorderThickness="0"
+                                 ScrollViewer.HorizontalScrollBarVisibility="Disabled" ScrollViewer.VerticalScrollBarVisibility="Disabled"
+                                 AutomationProperties.Name="{x:Static resx:SimpleUiText.ConnectionMode}"
+                                 AutomationProperties.HelpText="{x:Static resx:SimpleUiText.ConnectionModeHint}"
+                                 IsEnabled="{Binding StatusBarViewModel.CanChangeConnection}">
+                            <ListBox.ToolTip>
+                                <ToolTip><TextBlock MaxWidth="265" TextWrapping="Wrap" Text="{x:Static resx:SimpleUiText.ConnectionModeHint}" /></ToolTip>
+                            </ListBox.ToolTip>
+                            <ListBox.ItemsPanel>
+                                <ItemsPanelTemplate><StackPanel Orientation="Horizontal" /></ItemsPanelTemplate>
+                            </ListBox.ItemsPanel>
+                            <ListBox.ItemContainerStyle>
+                                <Style TargetType="ListBoxItem" BasedOn="{StaticResource {x:Type ListBoxItem}}">
+                                    <Setter Property="Padding" Value="14,7" />
+                                    <Setter Property="FontSize" Value="13" />
+                                    <Style.Triggers>
+                                        <Trigger Property="IsSelected" Value="True">
+                                            <Setter Property="FontWeight" Value="SemiBold" />
+                                        </Trigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </ListBox.ItemContainerStyle>
+                            <ListBoxItem Content="{x:Static resx:SimpleUiText.SystemProxy}" />
+                            <ListBoxItem Content="{x:Static resx:SimpleUiText.TunModeLabel}" />
+                        </ListBox>
+                    </Border>
+                </StackPanel>
+
+                <StackPanel Grid.Row="1">
+                    <Grid Margin="22,3,20,5">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock VerticalAlignment="Center" Margin="0,0,10,0" FontSize="12" Foreground="#ABB3BE"
+                                   Text="{x:Static resx:ResUI.menuRouting}" />
+                        <ComboBox Grid.Column="1" MinHeight="32" HorizontalAlignment="Stretch"
+                                  AutomationProperties.Name="{x:Static resx:ResUI.menuRouting}"
+                                  ItemsSource="{Binding StatusBarViewModel.RoutingItems}"
+                                  SelectedItem="{Binding StatusBarViewModel.SelectedRouting, Mode=TwoWay}"
+                                  DisplayMemberPath="Remarks" />
+                        <Button Grid.Column="2" Width="34" Height="34" Margin="5,0,0,0" Padding="5"
+                                HorizontalContentAlignment="Center" VerticalContentAlignment="Center"
+                                Background="Transparent" BorderThickness="0"
+                                AutomationProperties.Name="{x:Static resx:ResUI.menuRoutingSetting}"
+                                ToolTip="{x:Static resx:ResUI.menuRoutingSetting}" Command="{Binding RoutingSettingCmd}">
+                            <materialDesign:PackIcon Width="18" Height="18" Foreground="#D7DAE0" Kind="Tune" />
+                        </Button>
+                    </Grid>
+                    <Border Margin="10,4,10,10" Padding="18,16,18,12" Background="#FF15191F" CornerRadius="22">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                            </Grid.RowDefinitions>
+
+                            <Button
+                                x:Name="btnConfigurations"
+                                Padding="0"
+                                HorizontalContentAlignment="Stretch"
+                                AutomationProperties.Name="{x:Static resx:SimpleUiText.OpenConfigurations}"
+                                Background="Transparent"
+                                BorderThickness="0"
+                                Click="BtnConfigurations_Click">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <StackPanel>
+                                        <TextBlock FontSize="12" Foreground="#FF8E949E" Text="{x:Static resx:SimpleUiText.ActiveConfiguration}" />
+                                        <TextBlock Margin="0,5,0,0" FontSize="16" FontWeight="SemiBold" Foreground="White" Text="{Binding StatusBarViewModel.RunningServerDisplay}" TextTrimming="CharacterEllipsis" />
+                                    </StackPanel>
+                                    <materialDesign:PackIcon Grid.Column="1" Width="22" Height="22" VerticalAlignment="Center" Foreground="#FF8E949E" Kind="ChevronRight" />
+                                </Grid>
+                            </Button>
+
+                            <TextBlock Grid.Row="1" Margin="0,6,0,0" FontSize="12" Foreground="#FF8E949E" Text="{x:Static resx:SimpleUiText.SelectAnother}" />
+                        </Grid>
+                    </Border>
+                </StackPanel>
+                <Button Margin="12,8,0,0" Padding="5,3" Width="253"
+                        HorizontalAlignment="Left" VerticalAlignment="Top" HorizontalContentAlignment="Stretch"
+                        Background="Transparent" BorderThickness="0" Height="Auto"
+                        ToolTip="{Binding CheckUpdateViewModel.UpdateDetails}"
+                        AutomationProperties.HelpText="{Binding CheckUpdateViewModel.UpdateDetails}"
+                    AutomationProperties.Name="{Binding CheckUpdateViewModel.HomeStatus}"
+                        Command="{Binding CheckUpdateViewModel.HomeUpdateCmd}">
+                    <Button.ContextMenu>
+                        <ContextMenu>
+                            <MenuItem Header="{x:Static resx:ResUI.menuCheckUpdate}" Click="MenuCheckUpdate_Click" />
+                        </ContextMenu>
+                    </Button.ContextMenu>
+                    <StackPanel>
+                        <TextBlock Foreground="#FFB477" FontWeight="SemiBold" FontSize="13" TextWrapping="Wrap"
+                                   Text="{Binding CheckUpdateViewModel.HomeStatus}"/>
+                        <TextBlock Foreground="#ABB3BE" FontSize="11" Margin="0,2,0,0" TextWrapping="Wrap"
+                                   Text="{Binding CheckUpdateViewModel.HomeVersions}"/>
+                    </StackPanel>
+                </Button>
+
+                <Button Width="42" Height="42" Margin="0,10,12,0" Padding="9"
+                        HorizontalAlignment="Right" VerticalAlignment="Top" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"
+                        AutomationProperties.Name="{x:Static resx:ResUI.menuOptionSetting}"
+                        Background="Transparent" BorderThickness="0"
+                        Command="{Binding OptionSettingCmd}">
+                    <materialDesign:PackIcon Width="23" Height="23" Foreground="#FFD7DAE0" Kind="CogOutline" />
+                </Button>
+            </Grid>
+
+            <DockPanel Visibility="Collapsed">
                 <ToolBarTray DockPanel.Dock="Top">
                     <ToolBar
                         HorizontalAlignment="Center"
@@ -453,9 +637,13 @@
                             </TabItem>
                         </TabControl>
                     </Grid>
-                    <materialDesign:Snackbar x:Name="MainSnackbar" MessageQueue="{materialDesign:MessageQueue}" />
                 </Grid>
             </DockPanel>
+            <materialDesign:Snackbar
+                x:Name="MainSnackbar"
+                Margin="24"
+                VerticalAlignment="Bottom"
+                MessageQueue="{materialDesign:MessageQueue}" />
         </Grid>
     </materialDesign:DialogHost>
 </base:WindowBase>

@@ -10,8 +10,9 @@ public partial class MainWindow
 {
     private static Config _config;
     private readonly SingleReplaceableDisposable _layoutBindingsDisposable = new();
-    private CheckUpdateView? _checkUpdateView;
+    private Window? _updatesWindow;
     private BackupAndRestoreView? _backupAndRestoreView;
+    private ConfigurationsWindow? _configurationsWindow;
 
     public MainWindow()
     {
@@ -34,6 +35,8 @@ public partial class MainWindow
 
         this.WhenActivated(disposables =>
         {
+            this.Bind(ViewModel, vm => vm.StatusBarViewModel.ConnectionModeIndex, v => v.lstConnectionMode.SelectedIndex).DisposeWith(disposables);
+
             //servers
             this.BindCommand(ViewModel, vm => vm.AddVmessServerCmd, v => v.menuAddVmessServer).DisposeWith(disposables);
             this.BindCommand(ViewModel, vm => vm.AddVlessServerCmd, v => v.menuAddVlessServer).DisposeWith(disposables);
@@ -90,6 +93,33 @@ public partial class MainWindow
             this.WhenAnyValue(v => v.ViewModel.StatusBarViewModel)
                 .Subscribe(vm => ViewHost.Show(contentStatusBarView, vm))
                 .DisposeWith(disposables);
+
+            this.WhenAnyValue(v => v.ViewModel.ProfilesViewModel.SelectedProfile)
+                .Where(profile => profile != null)
+                .Subscribe(profile => ViewModel.ProfilesViewModel.SelectedProfiles = [profile])
+                .DisposeWith(disposables);
+
+            ViewModel.ProfilesViewModel.ShowYesNoInteraction.RegisterHandler(interaction =>
+            {
+                var result = UI.ShowYesNo(interaction.Input) != MessageBoxResult.No;
+                interaction.SetOutput(result);
+            }).DisposeWith(disposables);
+
+            ViewModel.ProfilesViewModel.ProfilesFocusInteraction.RegisterHandler(interaction =>
+            {
+                btnConfigurations.Focus();
+                interaction.SetOutput(RxVoid.Default);
+            }).DisposeWith(disposables);
+
+            ViewModel.ProfilesViewModel.DispatcherRefreshServersBizInteraction.RegisterHandler(interaction =>
+            {
+                interaction.SetOutput(RxVoid.Default);
+            }).DisposeWith(disposables);
+
+            ViewModel.ProfilesViewModel.AdjustMainLvColWidthInteraction.RegisterHandler(interaction =>
+            {
+                interaction.SetOutput(RxVoid.Default);
+            }).DisposeWith(disposables);
 
             ViewModel.ReadTextFromClipboardInteraction.RegisterHandler(interaction =>
             {
@@ -244,6 +274,32 @@ public partial class MainWindow
         ShowHideWindow(false);
     }
 
+    private void BtnConfigurations_Click(object sender, RoutedEventArgs e)
+    {
+        if (_configurationsWindow?.IsVisible == true)
+        {
+            _configurationsWindow.Activate();
+            return;
+        }
+
+        _configurationsWindow = new ConfigurationsWindow(ViewModel)
+        {
+            Owner = this
+        };
+        _configurationsWindow.Closed += (_, _) => _configurationsWindow = null;
+        _configurationsWindow.Show();
+    }
+
+    public void ShowAddConfigurationDialog()
+    {
+        Show();
+        Activate();
+        new AddConfigurationWindow(ViewModel)
+        {
+            Owner = this
+        }.ShowDialog();
+    }
+
     private void MenuPromotion_Click(object sender, RoutedEventArgs e)
     {
         ProcUtils.ProcessStart($"{Utils.Base64Decode(Global.PromotionUrl)}?t={DateTime.Now.Ticks}");
@@ -278,11 +334,23 @@ public partial class MainWindow
 
     private void MenuCheckUpdate_Click(object sender, RoutedEventArgs e)
     {
-        _checkUpdateView ??= new CheckUpdateView();
-        _checkUpdateView.ViewModel = ViewModel?.CheckUpdateViewModel;
-        DialogHost.Show(_checkUpdateView, "RootDialog");
-
-        AppEvents.HasUpdateNotified.Publish(false);
+        if (_updatesWindow?.IsVisible == true)
+        {
+            _updatesWindow.Activate();
+            return;
+        }
+        _updatesWindow = new Window
+        {
+            Title = ResUI.menuCheckUpdate,
+            Icon = Icon,
+            Width = 780,
+            Height = 370,
+            WindowStartupLocation = WindowStartupLocation.CenterOwner,
+            Content = new CheckUpdateView { ViewModel = ViewModel.CheckUpdateViewModel }
+        };
+        _updatesWindow.Closed += (_, _) => _updatesWindow = null;
+        _updatesWindow.Owner = this;
+        _updatesWindow.Show();
     }
 
     private void MenuBackupAndRestore_Click(object sender, RoutedEventArgs e)
@@ -319,6 +387,8 @@ public partial class MainWindow
     protected override void OnLoaded(object? sender, RoutedEventArgs e)
     {
         base.OnLoaded(sender, e);
+        Width = 340;
+        Height = 560;
         if (_config.UiItem.AutoHideStartup)
         {
             ShowHideWindow(false);

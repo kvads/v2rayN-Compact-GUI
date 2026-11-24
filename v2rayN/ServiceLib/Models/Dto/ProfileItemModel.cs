@@ -40,6 +40,21 @@ public partial class ProfileItemModel : ReactiveObject
     [Reactive]
     public partial string TotalDown { get; set; }
 
+    public string DisplayName => string.IsNullOrWhiteSpace(Remarks) ? Address ?? string.Empty : Remarks;
+
+    [Reactive]
+    public partial string TcpDelayText { get; set; } = "—";
+
+    [Reactive]
+    public partial string RealDelayText { get; set; } = "—";
+
+    public static string FormatDelay(int? value) => value switch
+    {
+        null => "—",
+        < 0 => ResUI.OperationFailed,
+        _ => value.ToString()
+    };
+
     public string GetSummary()
     {
         var summary = $"[{ConfigType}] {Remarks}";

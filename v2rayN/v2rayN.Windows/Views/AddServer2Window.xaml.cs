@@ -2,6 +2,8 @@ namespace v2rayN.Views;
 
 public partial class AddServer2Window
 {
+    protected override string SizePreferenceKey => nameof(AddServer2Window) + ".Compact";
+
     public AddServer2Window()
     {
         InitializeComponent();

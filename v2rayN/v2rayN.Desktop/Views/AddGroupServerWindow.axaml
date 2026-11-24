@@ -8,7 +8,7 @@
     xmlns:resx="clr-namespace:ServiceLib.Resx;assembly=ServiceLib"
     xmlns:vms="clr-namespace:ServiceLib.ViewModels;assembly=ServiceLib"
     Title="{x:Static resx:ResUI.menuServers}"
-    Width="900"
+    Width="660"
     Height="700"
     x:DataType="vms:AddGroupServerViewModel"
     Design.DataContext="{x:Static dd:DesignData.AddGroupServer}"
@@ -36,7 +36,7 @@
         </StackPanel>
 
         <Grid
-            ColumnDefinitions="300,Auto,Auto"
+            ColumnDefinitions="165,Auto,Auto"
             DockPanel.Dock="Top"
             RowDefinitions="Auto,Auto,Auto,Auto">
             <TextBlock
@@ -55,7 +55,7 @@
                 x:Name="txtRemarks"
                 Grid.Row="1"
                 Grid.Column="1"
-                Width="400"
+                Width="288"
                 Margin="{StaticResource Margin4}" />
 
             <TextBlock
@@ -76,7 +76,7 @@
                 Grid.Row="3"
                 Grid.Column="0"
                 Grid.ColumnSpan="3"
-                ColumnDefinitions="300,Auto,Auto">
+                ColumnDefinitions="165,Auto,Auto">
                 <TextBlock
                     Grid.Column="0"
                     Margin="{StaticResource Margin4}"
@@ -110,7 +110,7 @@
                         x:Name="cmbSubChildItems"
                         Grid.Row="0"
                         Grid.Column="1"
-                        Width="600"
+                        Width="290"
                         Margin="{StaticResource Margin4}"
                         DisplayMemberBinding="{Binding Remarks}"
                         ItemsSource="{Binding SubItems}" />
@@ -132,7 +132,7 @@
                         x:Name="cmbFilter"
                         Grid.Row="1"
                         Grid.Column="1"
-                        Width="600"
+                        Width="290"
                         Margin="{StaticResource Margin4}"
                         VerticalAlignment="Center"
                         IsEditable="True" />

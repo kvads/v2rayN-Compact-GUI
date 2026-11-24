@@ -129,10 +129,10 @@ public partial class App : Application
     {
         try
         {
-            if (Current?.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime { MainWindow: not null })
+            if (Current?.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime { MainWindow: MainWindow mainWindow })
             {
-                AppEvents.AddServerViaClipboardRequested.Publish();
-                await Task.Delay(1000);
+                mainWindow.ShowHideWindow(true);
+                await new AddConfigurationWindow(mainWindow.ViewModel).ShowDialog(mainWindow);
             }
         }
         catch (Exception ex)

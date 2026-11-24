@@ -3,6 +3,7 @@ namespace ServiceLib.Models.Dto;
 public class UpdateResult
 {
     public bool Success { get; set; }
+    public bool IsCurrent { get; init; }
     public string? Msg { get; set; }
     public SemanticVersion? Version { get; set; }
     public string? Url { get; set; }

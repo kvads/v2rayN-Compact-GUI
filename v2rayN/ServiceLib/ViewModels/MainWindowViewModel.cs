@@ -283,6 +283,9 @@ public partial class MainWindowViewModel : MyReactiveObject
             CheckUpdateViewModel.ReloadRequested.AsObservable(),
         };
 
+        StatusBarViewModel.ReloadConnectionInteraction.RegisterHandler(async interaction =>
+            interaction.SetOutput(await ReloadCoreAsync(waitForTurn: true)));
+
         foreach (var reloadRequested in vmReloadRequestedList)
         {
             reloadRequested
@@ -340,6 +343,7 @@ public partial class MainWindowViewModel : MyReactiveObject
         await RefreshServersDispatcherAsync();
 
         await Reload();
+        AppEvents.CheckUpdatesRequested.Publish();
     }
 
     #endregion Init
@@ -654,25 +658,32 @@ public partial class MainWindowViewModel : MyReactiveObject
     private bool _hasNextReloadJob = false;
     private readonly SemaphoreSlim _reloadSemaphore = new(1, 1);
 
-    public async Task Reload()
+    public async Task Reload() => await ReloadCoreAsync(waitForTurn: false);
+
+    private async Task<bool> ReloadCoreAsync(bool waitForTurn)
     {
-        //If there are unfinished reload job, marked with next job.
-        if (!await _reloadSemaphore.WaitAsync(0))
+        if (DesignMode) return false;
+        if (waitForTurn)
+        {
+            await _reloadSemaphore.WaitAsync();
+        }
+        else if (!await _reloadSemaphore.WaitAsync(0))
         {
             _hasNextReloadJob = true;
-            return;
+            return false;
         }
 
-        if (DesignMode)
-        {
-            _reloadSemaphore.Release();
-            return;
-        }
-
+        bool checkTunStartup = !waitForTurn && _config.TunModeItem.EnableTun;
+        bool running = false;
         try
         {
             SetReloadEnabled(false);
 
+            // Release the tunnel even when the replacement profile is missing or invalid.
+            if (waitForTurn && !_config.TunModeItem.EnableTun)
+            {
+                await CoreManager.Instance.CoreStop();
+            }
             RxSchedulers.MainThreadScheduler.Schedule(() =>
             {
                 if (TabMainSelectedIndex < 0)
@@ -684,19 +695,21 @@ public partial class MainWindowViewModel : MyReactiveObject
             if (profileItem == null)
             {
                 NoticeManager.Instance.Enqueue(ResUI.CheckServerSettings);
-                return;
+                return false;
             }
             var allResult = await CoreConfigContextBuilder.BuildAll(_config, profileItem);
             if (NoticeManager.Instance.NotifyValidatorResult(allResult.CombinedValidatorResult) && !allResult.Success)
             {
-                return;
+                return false;
             }
 
-            await Task.Run(async () =>
+            running = await Task.Run(async () =>
             {
-                await LoadCore(allResult.MainResult.Context, allResult.PreSocksResult?.Context);
+                var preCore = allResult.PreSocksResult?.Context;
+                var started = await CoreManager.Instance.LoadCore(allResult.MainResult.Context, preCore);
                 await SysProxyHandler.UpdateSysProxy(_config, false);
                 await Task.Delay(1000);
+                return started && CoreManager.Instance.IsCoreRunning(preCore != null);
             });
             RxSchedulers.MainThreadScheduler.Schedule(async () =>
             {
@@ -710,6 +723,7 @@ public partial class MainWindowViewModel : MyReactiveObject
                 {
                     IndexId = profileItem.IndexId,
                     IpInfo = result.Ip,
+                    DelayType = ESpeedActionType.Realping,
                     Delay = result.Time > 0 ? result.Time.ToString() : null
                 });
             });
@@ -730,11 +744,16 @@ public partial class MainWindowViewModel : MyReactiveObject
             }
 
             ReloadResult(showClashUI);
+            return running;
         }
         finally
         {
             SetReloadEnabled(true);
             _reloadSemaphore.Release();
+            if (checkTunStartup && !running)
+            {
+                await StatusBarViewModel.DisconnectFailedTunAsync();
+            }
             //If there is a next reload job, execute it.
             if (_hasNextReloadJob)
             {
@@ -761,11 +780,6 @@ public partial class MainWindowViewModel : MyReactiveObject
         RxSchedulers.MainThreadScheduler.Schedule(() => BlReloadEnabled = enabled);
     }
 
-    private async Task LoadCore(CoreConfigContext? mainContext, CoreConfigContext? preContext)
-    {
-        await CoreManager.Instance.LoadCore(mainContext, preContext);
-    }
-
     #endregion core job
 
     #region Presets
@@ -782,6 +796,7 @@ public partial class MainWindowViewModel : MyReactiveObject
         await ConfigTextHandler.SaveConfig();
         using var downloadService = await DownloadService.CreateDownloadServiceWithCheck();
         await new UpdateService(downloadService, _config, UpdateTaskHandler).UpdateGeoFileAll();
+        AppEvents.CheckUpdatesRequested.Publish();
         await Reload();
     }
 

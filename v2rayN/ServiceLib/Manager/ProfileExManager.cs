@@ -138,11 +138,19 @@ public class ProfileExManager
         }
     }
 
-    public void SetTestDelay(string indexId, int delay)
+    public void SetTestDelay(string indexId, int delay, ESpeedActionType? type = null)
     {
         var profileEx = GetProfileExItem(indexId);
 
         profileEx.Delay = delay;
+        if (type == ESpeedActionType.Tcping)
+        {
+            profileEx.TcpDelay = delay;
+        }
+        else if (type == ESpeedActionType.Realping)
+        {
+            profileEx.RealDelay = delay;
+        }
         IndexIdEnqueue(indexId);
     }
 

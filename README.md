@@ -1,80 +1,64 @@
-# v2rayN
+# v2rayN с компактным интерфейсом
 
-### A GUI client for Windows, Linux and macOS. Support [Xray](https://github.com/XTLS/Xray-core) and [sing-box](https://github.com/SagerNet/sing-box) and [others](https://github.com/2dust/v2rayN/wiki/List-of-supported-cores)
+Форк оригинального клиента v2rayN для тех, кто обычно пользуется одним окном: выбирает конфигурацию, нажимает большую кнопку и сворачивает приложение в трей. Клиент, поддержка протоколов и основа маршрутизации взяты из проекта 2dust и его участников. Все изменения этого форка, включая новый GUI для Linux и Windows, полностью реализовал ИИ-агент Codex. [Оригинальный репозиторий 2dust/v2rayN](https://github.com/2dust/v2rayN)
 
-[![CodeFactor](https://www.codefactor.io/repository/github/2dust/v2rayn/badge)](https://www.codefactor.io/repository/github/2dust/v2rayn)
-[![Release](https://img.shields.io/github/v/release/2dust/v2rayN?logo=github&label=Release)](https://github.com/2dust/v2rayN/releases)
-[![Downloads](https://img.shields.io/github/downloads/2dust/v2rayN/latest/total?logo=github&label=Downloads)](https://github.com/2dust/v2rayN/releases)
-[![Telegram](https://img.shields.io/badge/Telegram-Chat-26A5E4?logo=telegram)](https://t.me/v2rayn)
- 
-[![Windows](https://img.shields.io/badge/Windows-supported-0078D6?logo=windows)](https://github.com/2dust/v2rayN) 
-[![Linux](https://img.shields.io/badge/Linux-supported-FCC624?logo=linux&logoColor=000)](https://github.com/2dust/v2rayN) 
-[![macOS](https://img.shields.io/badge/macOS-supported-000000?logo=apple)](https://github.com/2dust/v2rayN) 
-[![GPG Signed](https://img.shields.io/badge/GPG-signed-4B32C3?logo=gnuprivacyguard)](https://github.com/2dust/v2rayN)
+**Проверен на Linux x86-64 (amd64)** под Ubuntu 26.04.1 LTS. Клиент для **Windows x64** успешно собран, проверка запуска на Windows пока не проводилась. Для 32-битного x86 и других архитектур проверок этого форка пока нет.
 
+| Главное окно | Выбор конфигурации |
+| --- | --- |
+| ![Главное окно с кнопкой подключения, выбором режима и правилами маршрутизации](docs/screenshots/main-linux.png) | ![Окно конфигураций с поиском, тремя карточками серверов и результатами тестов](docs/screenshots/configurations-linux.png) |
 
----
+Снимки сделаны в Linux. Названия серверов и результаты замеров демонстрационные.
 
-## Download / 下载
+## Как пользоваться
 
-Download the latest release here:
+1. Нажмите карточку **«Активная конфигурация»** внизу главного окна. Кнопка **＋** открывает поле для ссылки, значок буфера импортирует скопированную конфигурацию, а значок QR позволяет выбрать изображение с кодом.
+2. Нажмите название нужной конфигурации. Галочка показывает активную. Поиск работает по имени и адресу, карандаш открывает редактор, а нажатие на TCP-задержку, реальную задержку или скорость запускает соответствующий замер для этого сервера.
+3. Выберите **«Системный прокси»** или **TUN** и нажмите круглую кнопку. Системный прокси подходит приложениям, которые учитывают настройки прокси в ОС. TUN направляет трафик через виртуальный сетевой интерфейс и может потребовать прав администратора. Отключиться и снова подключиться можно также из меню значка в трее.
+4. Внизу главного окна выберите профиль **«Маршрутизация»**. Кнопка справа от списка открывает редактор правил. Шестерёнка в верхнем углу открывает общие настройки.
 
-在这里下载最新版本：
+<details>
+<summary>Как выглядит ввод ссылки</summary>
 
-[https://github.com/2dust/v2rayN/releases](https://github.com/2dust/v2rayN/releases)
+![Окно добавления конфигурации с демонстрационной ссылкой SOCKS](docs/screenshots/add-configuration-linux.png)
 
+</details>
 
-> [!TIP]
-> v2rayN is the desktop version. For the mobile version, please visit the v2rayNG \
-> v2rayN 是电脑版，手机版请访问 v2rayNG
->
-> https://github.com/2dust/v2rayNG
+## Обновления
 
----
+**Ядра и геофайлы** обновляются из приложения. В левом верхнем углу видны установленные версии Xray, mihomo и sing-box, а рядом с Geo — дата локального файла geosite.dat. Если появились новые пакеты, нажмите **«Установить обновления»**. Чтобы выбрать компоненты или запустить проверку вручную, откройте меню этого блока правой кнопкой мыши.
 
-## Documentation / 使用文档
+**Сам форк** обновляется отдельно. Встроенный список обновлений содержит только ядра и геофайлы. Для новой версии интерфейса обновите исходники из этого репозитория и пересоберите клиент. При необходимости изменения оригинального v2rayN можно перенести в форк и выпустить новую сборку.
 
-Read the Wiki for usage guides and configuration details.
+## Сборка из исходников
 
-请阅读 Wiki 获取使用说明和配置教程。
+Понадобятся Git и .NET 10 SDK. Следующие команды собирают автономную 64-битную версию для выбранной системы. [Загрузить .NET 10 SDK](https://dotnet.microsoft.com/download/dotnet/10.0)
 
-[https://github.com/2dust/v2rayN/wiki](https://github.com/2dust/v2rayN/wiki)
-
----
-
-## Supported Platforms / 支持平台
-
-| Platform / 平台 | x64 | x86 | arm64 | riscv64 | loong64 | ppc64le |
-| --- | --- | --- | --- | --- | --- | --- |
-| Windows | ✅ | ✅ | ✅ | - | - | - |
-| Linux | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
-| macOS | ✅ | - | ✅ | - | - | - |
-
-Minimum OS requirements: [Release files introduction](https://github.com/2dust/v2rayN/wiki/Release-files-introduction) / 最低系统要求：[发布文件介绍](https://github.com/2dust/v2rayN/wiki/Release-files-introduction)
-
----
-
-## GPG Verification / GPG 签名校验
-
-Release files are signed with GPG to verify authenticity and integrity, helping prevent mirror, ISP, or CDN hijacking.
-
-发布文件已使用 GPG 签名，可用于校验文件真实性与完整性，预防镜像站、运营商或 CDN 劫持。
-
-### Fingerprint / 公钥指纹
-
-```text
-7694 5E9F 3E9A 168F 8070 F195 805D 661C
-134D FAF6 8903 C199 463C 31E5 AE90 3AE0
+```shell
+git clone --recurse-submodules https://github.com/kvads/v2rayN.git
+cd v2rayN
 ```
 
----
+**Linux x86-64**
 
-## Community / 社区
+```shell
+dotnet publish v2rayN/v2rayN.Desktop/v2rayN.Desktop.csproj -c Release -r linux-x64 --self-contained true -o dist/linux-x64
+./dist/linux-x64/v2rayN
+```
 
-Telegram Group / Telegram 群组：
+**Windows x64** (PowerShell)
 
-[https://t.me/v2rayN](https://t.me/v2rayN)
+```powershell
+dotnet publish v2rayN/v2rayN.Windows/v2rayN.Windows.csproj -c Release -r win-x64 --self-contained true -o dist/windows-x64
+.\dist\windows-x64\v2rayN.exe
+```
 
-Telegram Channel / Telegram 频道：
+Команда сборки создаёт клиентскую часть. Если рядом с ядром на главном экране стоит прочерк, откройте выбор компонентов и установите нужное ядро и геофайлы. При переносе сборки сохраните содержимое каталога публикации целиком.
 
-[https://t.me/github_2dust](https://t.me/github_2dust)
+## Происхождение и документация
+
+Точная база этой сборки — коммит `91c61b1` оригинального v2rayN. Он включает релиз **7.25.6** и последующие изменения вплоть до трёх коммитов после тега **8.0.1**. Поэтому в заголовке окна отображается версия **8.0.1**. [Исходный коммит](https://github.com/2dust/v2rayN/commit/91c61b1fe595994c7bcf09739ddb5dc32fde4f04) · [Релиз 7.25.6](https://github.com/2dust/v2rayN/releases/tag/7.25.6) · [Сравнение с 8.0.1](https://github.com/2dust/v2rayN/compare/8.0.1...91c61b1fe595994c7bcf09739ddb5dc32fde4f04)
+
+Руководства по протоколам, ядрам и расширенным настройкам ведут авторы оригинального клиента. [Wiki v2rayN](https://github.com/2dust/v2rayN/wiki) · [Поддерживаемые ядра](https://github.com/2dust/v2rayN/wiki/List-of-supported-cores) · [Официальные сборки оригинала](https://github.com/2dust/v2rayN/releases)
+
+Форк распространяется по лицензии GNU GPL v3. [Лицензия](LICENSE)

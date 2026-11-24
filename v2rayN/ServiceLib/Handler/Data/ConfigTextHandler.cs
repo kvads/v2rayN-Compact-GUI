@@ -4,6 +4,7 @@ public static class ConfigTextHandler
 {
     private static readonly string _configRes = Global.ConfigFileName;
     private static readonly string _tag = "ConfigTextHandler";
+    private static readonly SemaphoreSlim _saveLock = new(1, 1);
 
     public static Config Config
     {
@@ -198,6 +199,8 @@ public static class ConfigTextHandler
         config.SystemProxyItem ??= new();
         config.WebDavItem ??= new();
         config.CheckUpdateItem ??= new();
+        config.CheckUpdateItem.SelectedCoreTypes?.RemoveAll(t => t == nameof(ECoreType.v2rayN));
+        config.CheckUpdateItem.CheckPreReleaseCoreTypes?.RemoveAll(t => t == nameof(ECoreType.v2rayN));
         config.Fragment4RayItem ??= new()
         {
             Packets = "tlshello",
@@ -237,6 +240,7 @@ public static class ConfigTextHandler
     /// <returns>0 if successful, -1 if failed</returns>
     public static async Task<int> SaveConfig()
     {
+        await _saveLock.WaitAsync();
         try
         {
             //save temp file
@@ -257,6 +261,10 @@ public static class ConfigTextHandler
         {
             Logging.SaveLog(_tag, ex);
             return -1;
+        }
+        finally
+        {
+            _saveLock.Release();
         }
 
         return 0;
