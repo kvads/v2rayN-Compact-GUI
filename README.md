@@ -1,64 +1,75 @@
-# v2rayN с компактным интерфейсом
+# v2rayN Compact
 
-Форк оригинального клиента v2rayN для тех, кто обычно пользуется одним окном: выбирает конфигурацию, нажимает большую кнопку и сворачивает приложение в трей. Клиент, поддержка протоколов и основа маршрутизации взяты из проекта 2dust и его участников. Все изменения этого форка, включая новый GUI для Linux и Windows, полностью реализовал ИИ-агент Codex. [Оригинальный репозиторий 2dust/v2rayN](https://github.com/2dust/v2rayN)
+A fork of v2rayN for Windows and Linux with a compact desktop interface. Pick a configuration, click the large connection button, and use the system tray to connect or disconnect while the window is hidden.
 
-**Проверен на Linux x86-64 (amd64)** под Ubuntu 26.04.1 LTS. Клиент для **Windows x64** успешно собран, проверка запуска на Windows пока не проводилась. Для 32-битного x86 и других архитектур проверок этого форка пока нет.
+The original client, protocol support, and routing engine come from 2dust and the v2rayN contributors. The Codex AI agent implemented all fork-specific changes, including the new desktop interface. [Original v2rayN repository](https://github.com/2dust/v2rayN)
 
-| Главное окно | Выбор конфигурации |
+## Download
+
+| Platform | Portable build | Testing |
+| --- | --- | --- |
+| Linux x86-64 (amd64) | [Download for Linux (.tar.gz)](https://github.com/kvads/v2rayN/releases/latest/download/v2rayN-compact-linux-x64.tar.gz) | Tested on Ubuntu 26.04.1 LTS |
+| Windows x64 | [Download for Windows (.zip)](https://github.com/kvads/v2rayN/releases/latest/download/v2rayN-compact-windows-x64.zip) | Built only. Untested on Windows. |
+
+**Only the Linux x86-64 build has been tested.** The fork has not been tested on 32-bit x86 or other architectures.
+
+Extract the entire archive into a folder where your account can write. On Linux, open that folder in a terminal and run `./v2rayN`. On Windows, launch `v2rayN.exe`. Both archives include the .NET runtime, Xray, mihomo, sing-box, and geodata. [Release notes](https://github.com/kvads/v2rayN/releases/latest) · [SHA-256 checksums](https://github.com/kvads/v2rayN/releases/latest/download/SHA256SUMS.txt)
+
+| Main window | Configuration picker |
 | --- | --- |
-| ![Главное окно с кнопкой подключения, выбором режима и правилами маршрутизации](docs/screenshots/main-linux.png) | ![Окно конфигураций с поиском, тремя карточками серверов и результатами тестов](docs/screenshots/configurations-linux.png) |
+| ![Linux main window with the connection button, proxy mode selector, and routing profile](docs/screenshots/main-linux.png) | ![Searchable configuration cards with TCP latency, real delay, and download speed](docs/screenshots/configurations-linux.png) |
 
-Снимки сделаны в Linux. Названия серверов и результаты замеров демонстрационные.
+The screenshots show the Russian interface on Linux. The server names and measurements are examples.
 
-## Как пользоваться
+## Using the client
 
-1. Нажмите карточку **«Активная конфигурация»** внизу главного окна. Кнопка **＋** открывает поле для ссылки, значок буфера импортирует скопированную конфигурацию, а значок QR позволяет выбрать изображение с кодом.
-2. Нажмите название нужной конфигурации. Галочка показывает активную. Поиск работает по имени и адресу, карандаш открывает редактор, а нажатие на TCP-задержку, реальную задержку или скорость запускает соответствующий замер для этого сервера.
-3. Выберите **«Системный прокси»** или **TUN** и нажмите круглую кнопку. Системный прокси подходит приложениям, которые учитывают настройки прокси в ОС. TUN направляет трафик через виртуальный сетевой интерфейс и может потребовать прав администратора. Отключиться и снова подключиться можно также из меню значка в трее.
-4. Внизу главного окна выберите профиль **«Маршрутизация»**. Кнопка справа от списка открывает редактор правил. Шестерёнка в верхнем углу открывает общие настройки.
+1. Click **Active configuration** at the bottom of the main window. Use **＋** to enter a configuration link, the clipboard icon to import a copied configuration, or the QR icon to import a code from an image.
+2. Click a configuration name to make it active. A check mark identifies the active entry. Search by name or address, use the pencil to edit an entry, or click one of its measurements to run a TCP latency, real delay, or download speed test.
+3. Choose **System proxy** or **TUN**, then click the round connection button. System proxy works with apps that follow the operating system’s proxy settings. TUN routes traffic through a virtual network interface and may require administrator privileges. The tray menu can connect or disconnect using the selected mode.
+4. Select a **Routing** profile near the bottom of the main window. The button beside the selector opens the routing rules editor. The gear in the upper corner opens general settings.
 
 <details>
-<summary>Как выглядит ввод ссылки</summary>
+<summary>Entering a configuration link</summary>
 
-![Окно добавления конфигурации с демонстрационной ссылкой SOCKS](docs/screenshots/add-configuration-linux.png)
+![Configuration link dialog with an example SOCKS URL](docs/screenshots/add-configuration-linux.png)
 
 </details>
 
-## Обновления
+## Updates
 
-**Ядра и геофайлы** обновляются из приложения. В левом верхнем углу видны установленные версии Xray, mihomo и sing-box, а рядом с Geo — дата локального файла geosite.dat. Если появились новые пакеты, нажмите **«Установить обновления»**. Чтобы выбрать компоненты или запустить проверку вручную, откройте меню этого блока правой кнопкой мыши.
+**Cores and geodata** can be updated from the main window. The upper-left corner shows the installed Xray, mihomo, and sing-box versions. **Geo** shows the date of the local `geosite.dat` file. When updates are available, click **Install updates**. Right-click the same area to choose components or check for updates manually.
 
-**Сам форк** обновляется отдельно. Встроенный список обновлений содержит только ядра и геофайлы. Для новой версии интерфейса обновите исходники из этого репозитория и пересоберите клиент. При необходимости изменения оригинального v2rayN можно перенести в форк и выпустить новую сборку.
+**The desktop client** is distributed separately through this fork’s releases. The in-app updater handles only cores and geodata, so it cannot replace the compact interface with an upstream client build. To update the interface, download a new build from this repository or rebuild from source. New upstream changes can be incorporated into future fork releases. [Fork releases](https://github.com/kvads/v2rayN/releases)
 
-## Сборка из исходников
+## Build from source
 
-Понадобятся Git и .NET 10 SDK. Следующие команды собирают автономную 64-битную версию для выбранной системы. [Загрузить .NET 10 SDK](https://dotnet.microsoft.com/download/dotnet/10.0)
+Install Git and the .NET 10 SDK, then clone the repository with its submodules. [Download .NET 10 SDK](https://dotnet.microsoft.com/download/dotnet/10.0)
 
-```shell
+```sh
 git clone --recurse-submodules https://github.com/kvads/v2rayN.git
 cd v2rayN
 ```
 
 **Linux x86-64**
 
-```shell
+```sh
 dotnet publish v2rayN/v2rayN.Desktop/v2rayN.Desktop.csproj -c Release -r linux-x64 --self-contained true -o dist/linux-x64
 ./dist/linux-x64/v2rayN
 ```
 
-**Windows x64** (PowerShell)
+**Windows x64 (PowerShell)**
 
 ```powershell
 dotnet publish v2rayN/v2rayN.Windows/v2rayN.Windows.csproj -c Release -r win-x64 --self-contained true -o dist/windows-x64
 .\dist\windows-x64\v2rayN.exe
 ```
 
-Команда сборки создаёт клиентскую часть. Если рядом с ядром на главном экране стоит прочерк, откройте выбор компонентов и установите нужное ядро и геофайлы. При переносе сборки сохраните содержимое каталога публикации целиком.
+These commands build the desktop client. If a core shows a dash in the main window, open the component picker and install the core and geodata you need. Keep the contents of the publish directory together when moving the application.
 
-## Происхождение и документация
+## Upstream and documentation
 
-Точная база этой сборки — коммит `91c61b1` оригинального v2rayN. Он включает релиз **7.25.6** и последующие изменения вплоть до трёх коммитов после тега **8.0.1**. Поэтому в заголовке окна отображается версия **8.0.1**. [Исходный коммит](https://github.com/2dust/v2rayN/commit/91c61b1fe595994c7bcf09739ddb5dc32fde4f04) · [Релиз 7.25.6](https://github.com/2dust/v2rayN/releases/tag/7.25.6) · [Сравнение с 8.0.1](https://github.com/2dust/v2rayN/compare/8.0.1...91c61b1fe595994c7bcf09739ddb5dc32fde4f04)
+This fork is based on upstream commit `91c61b1`. It includes release **7.25.6** and subsequent changes through three commits after the **8.0.1** tag. The client therefore displays **8.0.1** in its title bar. [Base commit](https://github.com/2dust/v2rayN/commit/91c61b1fe595994c7bcf09739ddb5dc32fde4f04) · [Upstream 7.25.6 release](https://github.com/2dust/v2rayN/releases/tag/7.25.6) · [Changes since 8.0.1](https://github.com/2dust/v2rayN/compare/8.0.1...91c61b1fe595994c7bcf09739ddb5dc32fde4f04)
 
-Руководства по протоколам, ядрам и расширенным настройкам ведут авторы оригинального клиента. [Wiki v2rayN](https://github.com/2dust/v2rayN/wiki) · [Поддерживаемые ядра](https://github.com/2dust/v2rayN/wiki/List-of-supported-cores) · [Официальные сборки оригинала](https://github.com/2dust/v2rayN/releases)
+The upstream project maintains the documentation for protocols, cores, and advanced settings. [v2rayN Wiki](https://github.com/2dust/v2rayN/wiki) · [Supported cores](https://github.com/2dust/v2rayN/wiki/List-of-supported-cores) · [Official upstream releases](https://github.com/2dust/v2rayN/releases)
 
-Форк распространяется по лицензии GNU GPL v3. [Лицензия](LICENSE)
+This fork is distributed under the GNU General Public License v3. [License](LICENSE)
