@@ -57,6 +57,7 @@ public partial class App
         viewFor!.ViewModel = mainWindowViewModel;
 
         var mainWindow = (MainWindow)viewFor;
+        mainWindow.DataContext = mainWindowViewModel;
         mainWindow.Show();
         MainWindow = mainWindow;
     }
