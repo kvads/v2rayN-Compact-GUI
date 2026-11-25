@@ -1,0 +1,96 @@
+name: Check compact Windows x64 release
+
+on:
+  push:
+    branches: [build/windows-compact-3]
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: windows-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: 8e750b36434a9c7d3640f9b244544127268a01af
+          persist-credentials: false
+          submodules: recursive
+      - uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: 10.0.x
+      - name: Publish Windows x64
+        run: dotnet publish v2rayN/v2rayN.Windows/v2rayN.Windows.csproj -c Release -r win-x64 --self-contained true -o publish
+      - name: Pack portable binaries and bundled cores
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $archiveName = 'v2rayN-compact-windows-x64'
+          $previous = Join-Path $env:RUNNER_TEMP 'previous.zip'
+          $unpacked = Join-Path $env:RUNNER_TEMP 'previous'
+          $bundle = Join-Path $env:RUNNER_TEMP $archiveName
+          Invoke-WebRequest 'https://github.com/kvads/v2rayN-Compact-GUI/releases/download/v8.0.1-compact.2/v2rayN-compact-windows-x64.zip' -OutFile $previous
+          if ((Get-FileHash $previous).Hash -ne 'e8f8895b95706518f64dd063213336a1d885531c609a169037bcc21029ffdb04') { throw 'Previous archive checksum mismatch' }
+          [IO.Compression.ZipFile]::ExtractToDirectory($previous, $unpacked)
+          $oldBundle = Join-Path $unpacked $archiveName
+          New-Item -ItemType Directory -Path $bundle | Out-Null
+          Copy-Item -Path 'publish/*' -Destination $bundle -Recurse
+          Copy-Item -LiteralPath (Join-Path $oldBundle 'bin'), (Join-Path $oldBundle 'licenses') -Destination $bundle -Recurse
+          Copy-Item -LiteralPath 'LICENSE' -Destination $bundle
+          $sources = (Get-Content -Raw (Join-Path $oldBundle 'SOURCES.txt')).Replace('0511d11b12b77e353726a6f95fe1d305c78f3923', '8e750b36434a9c7d3640f9b244544127268a01af')
+          [IO.File]::WriteAllText((Join-Path $bundle 'SOURCES.txt'), $sources)
+          [IO.Compression.ZipFile]::CreateFromDirectory($bundle, (Join-Path $PWD "$archiveName.zip"), [IO.Compression.CompressionLevel]::Optimal, $true)
+          Get-FileHash "$archiveName.zip" | Format-List
+      - name: Verify labels and the settings command in the portable build
+        shell: powershell
+        run: |
+          $bundle = Join-Path $env:RUNNER_TEMP 'v2rayN-compact-windows-x64'
+          $ErrorActionPreference = 'Stop'
+          Add-Type -AssemblyName UIAutomationClient, UIAutomationTypes
+          $app = Start-Process -FilePath (Join-Path $bundle 'v2rayN.exe') -WorkingDirectory $bundle -PassThru -WindowStyle Hidden
+          try {
+              $until = (Get-Date).AddSeconds(45)
+              do {
+                  Start-Sleep -Milliseconds 300
+                  $app.Refresh()
+                  if ($app.HasExited) { throw "v2rayN exited with code $($app.ExitCode)" }
+              } until ($app.MainWindowHandle -ne 0 -or (Get-Date) -gt $until)
+              if ($app.MainWindowHandle -eq 0) { throw 'Main window did not open' }
+              $main = [Windows.Automation.AutomationElement]::FromHandle($app.MainWindowHandle)
+              $scope = [Windows.Automation.TreeScope]::Descendants
+              function Find-Named($element, $name) {
+                  $condition = New-Object Windows.Automation.PropertyCondition([Windows.Automation.AutomationElement]::NameProperty, $name)
+                  $element.FindFirst($scope, $condition)
+              }
+              $until = (Get-Date).AddSeconds(30)
+              do {
+                  $connect = Find-Named $main 'Connect'
+                  $profile = Find-Named $main 'No matching configurations'
+                  if ($connect -and $profile) { break }
+                  Start-Sleep -Milliseconds 250
+              } while ((Get-Date) -lt $until)
+              if (!$connect -or !$profile -or !$connect.Current.IsEnabled) { throw 'Connection or profile binding is missing' }
+              Write-Host "Connection button: $($connect.Current.Name); profile: $($profile.Current.Name)"
+              $gear = Find-Named $main 'Option Setting'
+              $gear.GetCurrentPattern([Windows.Automation.InvokePattern]::Pattern).Invoke()
+              $pidCondition = New-Object Windows.Automation.PropertyCondition([Windows.Automation.AutomationElement]::ProcessIdProperty, $app.Id)
+              $until = (Get-Date).AddSeconds(15)
+              do {
+                  $windows = [Windows.Automation.AutomationElement]::RootElement.FindAll([Windows.Automation.TreeScope]::Children, $pidCondition)
+                  $settings = $windows | Where-Object { $_.Current.Name -eq 'Settings' }
+                  if (!$settings) { $settings = Find-Named $main 'Settings' }
+                  if ($settings) { break }
+                  Start-Sleep -Milliseconds 200
+              } while ((Get-Date) -lt $until)
+              if (!$settings) { throw 'The settings command did not open its window' }
+              Write-Host 'Settings opened from the main window.'
+          } finally {
+              if (!$app.HasExited) { Stop-Process -Id $app.Id -Force }
+          }
+      - uses: actions/upload-artifact@v7
+        with:
+          name: portable-windows-x64
+          path: v2rayN-compact-windows-x64.zip
+          archive: false
+          if-no-files-found: error
