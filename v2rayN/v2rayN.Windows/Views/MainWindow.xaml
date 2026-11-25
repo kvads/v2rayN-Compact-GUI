@@ -17,6 +17,7 @@
     x:TypeArguments="vms:MainWindowViewModel"
     Icon="/Resources/v2rayN.ico"
     ResizeMode="NoResize"
+    UseLayoutRounding="True"
     ShowInTaskbar="True"
     Style="{StaticResource WindowGlobal}"
     WindowStartupLocation="CenterScreen"
@@ -73,11 +74,13 @@
         <Grid>
             <Grid Background="#FF080B0D">
                 <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
                     <RowDefinition Height="*" />
+                    <RowDefinition Height="52" />
                     <RowDefinition Height="Auto" />
                 </Grid.RowDefinitions>
 
-                <StackPanel Margin="22,24,22,18" HorizontalAlignment="Center" VerticalAlignment="Center">
+                <StackPanel Grid.Row="1" Margin="16,0" HorizontalAlignment="Center" VerticalAlignment="Center">
                     <Button
                         Width="170"
                         Height="170"
@@ -138,7 +141,46 @@
                     </Border>
                 </StackPanel>
 
-                <StackPanel Grid.Row="1">
+                <materialDesign:Snackbar
+                    x:Name="MainSnackbar"
+                    Grid.Row="2"
+                    Margin="12,0"
+                    MinWidth="0"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Center"
+                    Background="#20272E"
+                    BorderBrush="#37424D"
+                    BorderThickness="1"
+                    CornerRadius="12"
+                    Foreground="#EDF1F6"
+                    MessageQueue="{materialDesign:MessageQueue}"
+                    materialDesign:SnackbarMessage.ContentMaxHeight="32">
+                    <materialDesign:Snackbar.Resources>
+                        <Style TargetType="{x:Type materialDesign:SnackbarMessage}">
+                            <Setter Property="Margin" Value="12,6" />
+                            <Setter Property="ContentTemplate">
+                                <Setter.Value>
+                                    <DataTemplate>
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="Auto" />
+                                                <ColumnDefinition Width="*" />
+                                            </Grid.ColumnDefinitions>
+                                            <materialDesign:PackIcon Width="16" Height="16" Margin="0,0,8,0" VerticalAlignment="Center"
+                                                                     Foreground="#FFB477" Kind="InformationOutline" />
+                                            <TextBlock Grid.Column="1" FontSize="12" Foreground="#EDF1F6"
+                                                       LineHeight="16" LineStackingStrategy="BlockLineHeight"
+                                                       Text="{Binding}" TextWrapping="Wrap" TextTrimming="CharacterEllipsis"
+                                                       ToolTip="{Binding}" />
+                                        </Grid>
+                                    </DataTemplate>
+                                </Setter.Value>
+                            </Setter>
+                        </Style>
+                    </materialDesign:Snackbar.Resources>
+                </materialDesign:Snackbar>
+
+                <StackPanel Grid.Row="3">
                     <Grid Margin="22,3,20,5">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto" />
@@ -160,37 +202,48 @@
                             <materialDesign:PackIcon Width="18" Height="18" Foreground="#D7DAE0" Kind="Tune" />
                         </Button>
                     </Grid>
-                    <Border Margin="10,4,10,10" Padding="18,16,18,12" Background="#FF15191F" CornerRadius="22">
+                    <Button x:Name="btnConfigurations" Height="Auto" Margin="10,4,10,10" Padding="16,11"
+                            HorizontalContentAlignment="Stretch" FocusVisualStyle="{x:Null}"
+                            AutomationProperties.Name="{x:Static resx:SimpleUiText.OpenConfigurations}"
+                            AutomationProperties.HelpText="{Binding StatusBarViewModel.RunningServerDisplay}"
+                            Click="BtnConfigurations_Click">
+                        <Button.Template>
+                            <ControlTemplate TargetType="Button">
+                                <Border x:Name="Surface" Padding="{TemplateBinding Padding}" CornerRadius="16"
+                                        Background="#15191F" BorderBrush="Transparent" BorderThickness="1">
+                                    <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                                      VerticalAlignment="Center" />
+                                </Border>
+                                <ControlTemplate.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter TargetName="Surface" Property="Background" Value="#1C2229" />
+                                    </Trigger>
+                                    <Trigger Property="IsKeyboardFocused" Value="True">
+                                        <Setter TargetName="Surface" Property="BorderBrush" Value="#FFB477" />
+                                    </Trigger>
+                                    <Trigger Property="IsPressed" Value="True">
+                                        <Setter TargetName="Surface" Property="Background" Value="#252D35" />
+                                    </Trigger>
+                                </ControlTemplate.Triggers>
+                            </ControlTemplate>
+                        </Button.Template>
                         <Grid>
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="Auto" />
-                                <RowDefinition Height="Auto" />
-                            </Grid.RowDefinitions>
-
-                            <Button
-                                x:Name="btnConfigurations"
-                                Padding="0"
-                                HorizontalContentAlignment="Stretch"
-                                AutomationProperties.Name="{x:Static resx:SimpleUiText.OpenConfigurations}"
-                                Background="Transparent"
-                                BorderThickness="0"
-                                Click="BtnConfigurations_Click">
-                                <Grid>
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="*" />
-                                        <ColumnDefinition Width="Auto" />
-                                    </Grid.ColumnDefinitions>
-                                    <StackPanel>
-                                        <TextBlock FontSize="12" Foreground="#FF8E949E" Text="{x:Static resx:SimpleUiText.ActiveConfiguration}" />
-                                        <TextBlock Margin="0,5,0,0" FontSize="16" FontWeight="SemiBold" Foreground="White" Text="{Binding StatusBarViewModel.RunningServerDisplay}" TextTrimming="CharacterEllipsis" />
-                                    </StackPanel>
-                                    <materialDesign:PackIcon Grid.Column="1" Width="22" Height="22" VerticalAlignment="Center" Foreground="#FF8E949E" Kind="ChevronRight" />
-                                </Grid>
-                            </Button>
-
-                            <TextBlock Grid.Row="1" Margin="0,6,0,0" FontSize="12" Foreground="#FF8E949E" Text="{x:Static resx:SimpleUiText.SelectAnother}" />
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <StackPanel>
+                                <TextBlock FontSize="12" Foreground="#A7B0BA" Text="{x:Static resx:SimpleUiText.ActiveConfiguration}" />
+                                <TextBlock Margin="0,4,0,0" MaxHeight="40" FontSize="16" FontWeight="SemiBold" Foreground="#F2F4F6"
+                                           LineHeight="20" LineStackingStrategy="BlockLineHeight"
+                                           Text="{Binding StatusBarViewModel.RunningServerDisplay}" TextWrapping="Wrap"
+                                           TextTrimming="CharacterEllipsis" ToolTip="{Binding StatusBarViewModel.RunningServerDisplay}" />
+                                <TextBlock Margin="0,4,0,0" FontSize="12" Foreground="#A7B0BA" Text="{x:Static resx:SimpleUiText.SelectAnother}" />
+                            </StackPanel>
+                            <materialDesign:PackIcon Grid.Column="1" Width="20" Height="20" Margin="8,0,0,0"
+                                                     VerticalAlignment="Center" Foreground="#A7B0BA" Kind="ChevronRight" />
                         </Grid>
-                    </Border>
+                    </Button>
                 </StackPanel>
                 <Button Margin="12,8,0,0" Padding="5,3" Width="253"
                         HorizontalAlignment="Left" VerticalAlignment="Top" HorizontalContentAlignment="Stretch"
@@ -639,11 +692,6 @@
                     </Grid>
                 </Grid>
             </DockPanel>
-            <materialDesign:Snackbar
-                x:Name="MainSnackbar"
-                Margin="24"
-                VerticalAlignment="Bottom"
-                MessageQueue="{materialDesign:MessageQueue}" />
         </Grid>
     </materialDesign:DialogHost>
 </base:WindowBase>
