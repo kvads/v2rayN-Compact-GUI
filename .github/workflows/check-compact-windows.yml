@@ -123,6 +123,11 @@ jobs:
               try {
                   $g.CopyFromScreen([int]$rectangle.X, [int]$rectangle.Y, 0, 0, $bmp.Size)
                   $bmp.Save((Join-Path $env:RUNNER_TEMP "$name.png"), [Drawing.Imaging.ImageFormat]::Png)
+                  $stream = New-Object IO.MemoryStream
+                  try {
+                      $bmp.Save($stream, [Drawing.Imaging.ImageFormat]::Jpeg)
+                      Write-Host ("LAYOUT_PREVIEW_" + $name + "=" + [Convert]::ToBase64String($stream.ToArray()))
+                  } finally { $stream.Dispose() }
               } finally { $g.Dispose(); $bmp.Dispose() }
           }
           $app = Start-Process -FilePath (Join-Path $bundle 'v2rayN.exe') -WorkingDirectory $bundle -PassThru -WindowStyle Hidden
@@ -157,7 +162,9 @@ jobs:
               }
               if ([Math]::Abs($edges[0] - $edges[1]) -gt 2 * $scale) { throw 'Short and long cards have different widths' }
               $resize = $picker.GetCurrentPattern([Windows.Automation.TransformPattern]::Pattern)
-              try { $resize.Resize($initial.Width + 125, $initial.Height + 60) } catch [System.InvalidOperationException] { }
+              try { $resize.Resize($initial.Width + 125, $initial.Height) } catch [System.InvalidOperationException] { }
+              Start-Sleep -Milliseconds 350
+              if ([Math]::Abs($picker.Current.BoundingRectangle.Width - $initial.Width) -gt 2) { throw 'Picker can resize horizontally' }
               $resize.Resize($initial.Width, $initial.Height + 60)
               $null = Wait-For 'vertical resize' { $picker.Current.BoundingRectangle.Height -gt $initial.Height + 25 }
               if ([Math]::Abs($picker.Current.BoundingRectangle.Width - $initial.Width) -gt 2) { throw 'Fixed window width changed' }
