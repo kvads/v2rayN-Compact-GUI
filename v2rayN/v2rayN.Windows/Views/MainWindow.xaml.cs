@@ -101,7 +101,7 @@ public partial class MainWindow
 
             ViewModel.ProfilesViewModel.ShowYesNoInteraction.RegisterHandler(interaction =>
             {
-                var result = UI.ShowYesNo(interaction.Input) != MessageBoxResult.No;
+                var result = UI.ShowYesNo(interaction.Input) == MessageBoxResult.Yes;
                 interaction.SetOutput(result);
             }).DisposeWith(disposables);
 

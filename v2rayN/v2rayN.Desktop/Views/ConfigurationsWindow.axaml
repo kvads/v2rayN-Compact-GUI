@@ -63,7 +63,7 @@
                     <DataTemplate x:DataType="models:ProfileItemModel">
                         <Border Background="#181D23" CornerRadius="12" Padding="10,6,10,9">
                             <StackPanel>
-                                <Grid ColumnDefinitions="*,Auto">
+                                <Grid ColumnDefinitions="*,Auto,Auto">
                                     <Button Classes="flat" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch" AutomationProperties.Name="{Binding DisplayName}"
                                         Command="{Binding $parent[Window].((vms:ConfigurationListViewModel)DataContext).Activate}" CommandParameter="{Binding}" ToolTip.Tip="{x:Static resx:ResUI.menuSetDefaultServer}">
                                         <Grid ColumnDefinitions="Auto,*">
@@ -76,6 +76,10 @@
                                     <Button Grid.Column="1" Classes="flat" Width="36" Height="34" HorizontalContentAlignment="Center"
                                         ToolTip.Tip="{x:Static resx:ResUI.menuEditServer}" AutomationProperties.Name="{x:Static resx:ResUI.menuEditServer}" Command="{Binding $parent[Window].((vms:ConfigurationListViewModel)DataContext).Edit}" CommandParameter="{Binding}">
                                         <Path Width="17" Height="17" Stretch="Uniform" Stroke="#EDEFF3" StrokeThickness="1.6" Data="M4 16L15 5L19 9L8 20L3 21Z M14 6L18 10"/>
+                                    </Button>
+                                    <Button Grid.Column="2" Classes="flat" Width="36" Height="34" HorizontalContentAlignment="Center"
+                                        ToolTip.Tip="{x:Static resx:ResUI.menuSubDelete}" AutomationProperties.Name="{x:Static resx:ResUI.menuSubDelete}" Command="{Binding $parent[Window].((vms:ConfigurationListViewModel)DataContext).Delete}" CommandParameter="{Binding}">
+                                        <Path Width="17" Height="17" Stretch="Uniform" Stroke="#E5A6A1" StrokeThickness="1.6" Data="M3 6H21 M9 6V3H15V6 M6 6L7 21H17L18 6 M10 10V17 M14 10V17"/>
                                     </Button>
                                 </Grid>
                                 <Grid ColumnDefinitions="*,*,*">

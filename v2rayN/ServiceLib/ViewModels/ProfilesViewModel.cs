@@ -2,6 +2,7 @@ namespace ServiceLib.ViewModels;
 
 public partial class ProfilesViewModel : MyReactiveObject
 {
+    public Interaction<RxVoid, RxVoid> ReloadAfterRemovalInteraction { get; } = new();
     public Interaction<string, bool> ShowYesNoInteraction { get; } = new();
     public Interaction<ProfileItem, bool> SaveFileDialogInteraction { get; } = new();
     public Interaction<string, RxVoid> SetClipboardDataInteraction { get; } = new();
@@ -520,26 +521,38 @@ public partial class ProfilesViewModel : MyReactiveObject
     public async Task RemoveServerAsync()
     {
         var lstSelected = await GetProfileItems(true);
-        if (lstSelected == null)
+        if (lstSelected != null)
         {
-            return;
+            await ConfirmRemoveServersAsync(lstSelected, ResUI.RemoveServer);
         }
-        if (await ShowYesNoInteraction.HandleSafe(ResUI.RemoveServer) == false)
-        {
-            return;
-        }
-        var exists = lstSelected.Exists(t => t.IndexId == _config.IndexId);
+    }
 
-        await ConfigDbHandler.RemoveServers(lstSelected);
-        NoticeManager.Instance.Enqueue(ResUI.OperationSuccess);
-        if (lstSelected.Count == ProfileItems.Count)
+    public async Task RemoveServerAsync(ProfileItemModel card)
+    {
+        var profile = await ConfigDbQuery.GetProfileItem(card.IndexId);
+        if (profile != null)
         {
-            ProfileItems.Clear();
+            await ConfirmRemoveServersAsync([profile], $"{ResUI.RemoveServer}{Environment.NewLine}{card.DisplayName}");
+        }
+    }
+
+    private async Task ConfirmRemoveServersAsync(List<ProfileItem> profiles, string prompt)
+    {
+        if (!await ShowYesNoInteraction.HandleSafe(prompt))
+        {
+            return;
+        }
+        var removedActive = profiles.Exists(t => t.IndexId == _config.IndexId);
+        await ConfigDbHandler.RemoveServers(profiles);
+        NoticeManager.Instance.Enqueue(ResUI.OperationSuccess);
+        if (removedActive)
+        {
+            await ConfigTextHandler.GetDefaultServer();
         }
         await RefreshServers();
-        if (exists)
+        if (removedActive)
         {
-            Reload();
+            await ReloadAfterRemovalInteraction.HandleSafe(RxVoid.Default);
         }
     }
 

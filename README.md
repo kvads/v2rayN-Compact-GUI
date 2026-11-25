@@ -8,12 +8,12 @@ The original client, protocol support, and routing engine come from 2dust and th
 
 | Platform | Portable build | Testing |
 | --- | --- | --- |
-| Linux x86-64 (amd64) | [Download for Linux (.tar.gz)](https://github.com/kvads/v2rayN/releases/latest/download/v2rayN-compact-linux-x64.tar.gz) | Tested on Ubuntu 26.04.1 LTS |
-| Windows x64 | [Download for Windows (.zip)](https://github.com/kvads/v2rayN/releases/latest/download/v2rayN-compact-windows-x64.zip) | Built only. Untested on Windows. |
+| Linux x86-64 (amd64) | [Download for Linux (.tar.gz)](https://github.com/kvads/v2rayN-Compact-GUI/releases/latest/download/v2rayN-compact-linux-x64.tar.gz) | Tested on Ubuntu 26.04.1 LTS |
+| Windows x64 | [Download for Windows (.zip)](https://github.com/kvads/v2rayN-Compact-GUI/releases/latest/download/v2rayN-compact-windows-x64.zip) | Built only. Untested on Windows. |
 
 **Only the Linux x86-64 build has been tested.** The fork has not been tested on 32-bit x86 or other architectures.
 
-Extract the entire archive into a folder where your account can write. On Linux, open that folder in a terminal and run `./v2rayN`. On Windows, launch `v2rayN.exe`. Both archives include the .NET runtime, Xray, mihomo, sing-box, and geodata. [Release notes](https://github.com/kvads/v2rayN/releases/latest) · [SHA-256 checksums](https://github.com/kvads/v2rayN/releases/latest/download/SHA256SUMS.txt)
+Extract the entire archive into a folder where your account can write. On Linux, open that folder in a terminal and run `./v2rayN`. On Windows, launch `v2rayN.exe`. Both archives include the .NET runtime, Xray, mihomo, sing-box, and geodata. [Release notes](https://github.com/kvads/v2rayN-Compact-GUI/releases/latest) · [SHA-256 checksums](https://github.com/kvads/v2rayN-Compact-GUI/releases/latest/download/SHA256SUMS.txt)
 
 | Main window | Configuration picker |
 | --- | --- |
@@ -24,9 +24,9 @@ The screenshots show the Russian interface on Linux. The server names and measur
 ## Using the client
 
 1. Click **Active configuration** at the bottom of the main window. Use **＋** to enter a configuration link, the clipboard icon to import a copied configuration, or the QR icon to import a code from an image.
-2. Click a configuration name to make it active. A check mark identifies the active entry. Search by name or address, use the pencil to edit an entry, or click one of its measurements to run a TCP latency, real delay, or download speed test.
+2. Click a configuration name to make it active. A check mark identifies the active entry. Search by name or address. Use the pencil to edit a configuration or the trash icon to delete it. The confirmation shows the configuration name. Click a measurement to run a TCP latency, real delay, or download speed test.
 3. Choose **System proxy** or **TUN**, then click the round connection button. System proxy works with apps that follow the operating system’s proxy settings. TUN routes traffic through a virtual network interface and may require administrator privileges. The tray menu can connect or disconnect using the selected mode.
-4. Select a **Routing** profile near the bottom of the main window. The button beside the selector opens the routing rules editor. The gear in the upper corner opens general settings.
+4. Select a **Routing** profile near the bottom of the main window. The button beside the selector opens the routing rules editor. The gear in the upper corner opens the application settings, where you can change the interface language. Restart the client to apply a language change.
 
 <details>
 <summary>Entering a configuration link</summary>
@@ -39,15 +39,15 @@ The screenshots show the Russian interface on Linux. The server names and measur
 
 **Cores and geodata** can be updated from the main window. The upper-left corner shows the installed Xray, mihomo, and sing-box versions. **Geo** shows the date of the local `geosite.dat` file. When updates are available, click **Install updates**. Right-click the same area to choose components or check for updates manually.
 
-**The desktop client** is distributed separately through this fork’s releases. The in-app updater handles only cores and geodata, so it cannot replace the compact interface with an upstream client build. To update the interface, download a new build from this repository or rebuild from source. New upstream changes can be incorporated into future fork releases. [Fork releases](https://github.com/kvads/v2rayN/releases)
+**The desktop client** is distributed separately through this fork’s releases. The in-app updater handles only cores and geodata, so it cannot replace the compact interface with an upstream client build. To update the interface, download a new build from this repository or rebuild from source. New upstream changes can be incorporated into future fork releases. [Fork releases](https://github.com/kvads/v2rayN-Compact-GUI/releases)
 
 ## Build from source
 
 Install Git and the .NET 10 SDK, then clone the repository with its submodules. [Download .NET 10 SDK](https://dotnet.microsoft.com/download/dotnet/10.0)
 
 ```sh
-git clone --recurse-submodules https://github.com/kvads/v2rayN.git
-cd v2rayN
+git clone --recurse-submodules https://github.com/kvads/v2rayN-Compact-GUI.git
+cd v2rayN-Compact-GUI
 ```
 
 **Linux x86-64**

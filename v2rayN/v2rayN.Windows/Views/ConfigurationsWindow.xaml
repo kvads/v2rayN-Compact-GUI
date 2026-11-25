@@ -88,6 +88,7 @@
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="*"/>
                                         <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="Auto"/>
                                     </Grid.ColumnDefinitions>
                                     <Button Style="{StaticResource flat}" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch" AutomationProperties.Name="{Binding DisplayName}"
                                         Command="{Binding DataContext.Activate, RelativeSource={RelativeSource AncestorType=Window}}" CommandParameter="{Binding}" ToolTip="{x:Static resx:ResUI.menuSetDefaultServer}">
@@ -105,6 +106,10 @@
                                     <Button Grid.Column="1" Style="{StaticResource flat}" Width="36" Height="34" HorizontalContentAlignment="Center"
                                         ToolTip="{x:Static resx:ResUI.menuEditServer}" AutomationProperties.Name="{x:Static resx:ResUI.menuEditServer}" Command="{Binding DataContext.Edit, RelativeSource={RelativeSource AncestorType=Window}}" CommandParameter="{Binding}">
                                         <Path Width="17" Height="17" Stretch="Uniform" Stroke="#EDEFF3" StrokeThickness="1.6" Data="M4 16L15 5L19 9L8 20L3 21Z M14 6L18 10"/>
+                                    </Button>
+                                    <Button Grid.Column="2" Style="{StaticResource flat}" Width="36" Height="34" HorizontalContentAlignment="Center"
+                                        ToolTip="{x:Static resx:ResUI.menuSubDelete}" AutomationProperties.Name="{x:Static resx:ResUI.menuSubDelete}" Command="{Binding DataContext.Delete, RelativeSource={RelativeSource AncestorType=Window}}" CommandParameter="{Binding}">
+                                        <Path Width="17" Height="17" Stretch="Uniform" Stroke="#E5A6A1" StrokeThickness="1.6" Data="M3 6H21 M9 6V3H15V6 M6 6L7 21H17L18 6 M10 10V17 M14 10V17"/>
                                     </Button>
                                 </Grid>
                                 <Grid>

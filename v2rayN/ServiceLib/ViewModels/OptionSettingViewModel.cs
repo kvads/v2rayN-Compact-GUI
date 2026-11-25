@@ -40,21 +40,17 @@ public partial class OptionSettingViewModel : MyReactiveObject, ICloseable
 
     #region UI
 
+    [Reactive] public partial string CurrentLanguage { get; set; }
     [Reactive] public partial bool AutoRun { get; set; }
     [Reactive] public partial bool EnableStatistics { get; set; }
     [Reactive] public partial bool KeepOlderDedupl { get; set; }
-    [Reactive] public partial bool DisplayRealTimeSpeed { get; set; }
-    [Reactive] public partial bool EnableAutoAdjustMainLvColWidth { get; set; }
     [Reactive] public partial bool AutoHideStartup { get; set; }
     [Reactive] public partial bool Hide2TrayWhenClose { get; set; }
     [Reactive] public partial bool MacOSShowInDock { get; set; }
-    [Reactive] public partial bool EnableDragDropSort { get; set; }
-    [Reactive] public partial bool DoubleClick2Activate { get; set; }
     [Reactive] public partial int AutoUpdateInterval { get; set; }
     [Reactive] public partial string CurrentFontFamily { get; set; }
     [Reactive] public partial bool EnableHWA { get; set; }
     [Reactive] public partial string SubConvertUrl { get; set; }
-    [Reactive] public partial int MainGirdOrientation { get; set; }
     [Reactive] public partial string GeoFileSourceUrl { get; set; }
     [Reactive] public partial string SrsFileSourceUrl { get; set; }
     [Reactive] public partial string RoutingRulesSourceUrl { get; set; }
@@ -179,21 +175,17 @@ public partial class OptionSettingViewModel : MyReactiveObject, ICloseable
 
         #region UI
 
+        CurrentLanguage = _config.UiItem.CurrentLanguage;
         AutoRun = _config.GuiItem.AutoRun;
         EnableStatistics = _config.GuiItem.EnableStatistics;
-        DisplayRealTimeSpeed = _config.GuiItem.DisplayRealTimeSpeed;
         KeepOlderDedupl = _config.GuiItem.KeepOlderDedupl;
-        EnableAutoAdjustMainLvColWidth = _config.UiItem.EnableAutoAdjustMainLvColWidth;
         AutoHideStartup = _config.UiItem.AutoHideStartup;
         Hide2TrayWhenClose = _config.UiItem.Hide2TrayWhenClose;
         MacOSShowInDock = _config.UiItem.MacOSShowInDock;
-        EnableDragDropSort = _config.UiItem.EnableDragDropSort;
-        DoubleClick2Activate = _config.UiItem.DoubleClick2Activate;
         AutoUpdateInterval = _config.GuiItem.AutoUpdateInterval;
         CurrentFontFamily = _config.UiItem.CurrentFontFamily;
         EnableHWA = _config.GuiItem.EnableHWA;
         SubConvertUrl = _config.ConstItem.SubConvertUrl;
-        MainGirdOrientation = (int)_config.UiItem.MainGirdOrientation;
         GeoFileSourceUrl = _config.ConstItem.GeoSourceUrl;
         SrsFileSourceUrl = _config.ConstItem.SrsSourceUrl;
         RoutingRulesSourceUrl = _config.ConstItem.RouteRulesTemplateSourceUrl;
@@ -320,9 +312,8 @@ public partial class OptionSettingViewModel : MyReactiveObject, ICloseable
             NoticeManager.Instance.Enqueue(ResUI.FillFragmentParameterError);
             return;
         }
-        var needReboot = EnableStatistics != _config.GuiItem.EnableStatistics
-                          || DisplayRealTimeSpeed != _config.GuiItem.DisplayRealTimeSpeed
-                        || EnableDragDropSort != _config.UiItem.EnableDragDropSort
+        var needReboot = CurrentLanguage != _config.UiItem.CurrentLanguage
+                        || EnableStatistics != _config.GuiItem.EnableStatistics
                         || EnableHWA != _config.GuiItem.EnableHWA
                         || CurrentFontFamily != _config.UiItem.CurrentFontFamily;
 
@@ -363,21 +354,17 @@ public partial class OptionSettingViewModel : MyReactiveObject, ICloseable
         _config.Fragment4RayItem.Delays = fragmentDelays;
         _config.Fragment4RayItem.MaxSplit = FragmentMaxSplit;
 
+        _config.UiItem.CurrentLanguage = CurrentLanguage;
         _config.GuiItem.AutoRun = AutoRun;
         _config.GuiItem.EnableStatistics = EnableStatistics;
-        _config.GuiItem.DisplayRealTimeSpeed = DisplayRealTimeSpeed;
         _config.GuiItem.KeepOlderDedupl = KeepOlderDedupl;
-        _config.UiItem.EnableAutoAdjustMainLvColWidth = EnableAutoAdjustMainLvColWidth;
         _config.UiItem.AutoHideStartup = AutoHideStartup;
         _config.UiItem.Hide2TrayWhenClose = Hide2TrayWhenClose;
         _config.UiItem.MacOSShowInDock = MacOSShowInDock;
         _config.GuiItem.AutoUpdateInterval = AutoUpdateInterval;
-        _config.UiItem.EnableDragDropSort = EnableDragDropSort;
-        _config.UiItem.DoubleClick2Activate = DoubleClick2Activate;
         _config.UiItem.CurrentFontFamily = CurrentFontFamily;
         _config.GuiItem.EnableHWA = EnableHWA;
         _config.ConstItem.SubConvertUrl = SubConvertUrl;
-        _config.UiItem.MainGirdOrientation = (EGirdOrientation)MainGirdOrientation;
         _config.ConstItem.GeoSourceUrl = GeoFileSourceUrl;
         _config.ConstItem.SrsSourceUrl = SrsFileSourceUrl;
         _config.ConstItem.RouteRulesTemplateSourceUrl = RoutingRulesSourceUrl;

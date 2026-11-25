@@ -283,8 +283,13 @@ public partial class MainWindowViewModel : MyReactiveObject
             CheckUpdateViewModel.ReloadRequested.AsObservable(),
         };
 
+        ProfilesViewModel.ReloadAfterRemovalInteraction.RegisterHandler(async interaction =>
+        {
+            await ReloadCoreAsync(waitForTurn: true);
+            interaction.SetOutput(RxVoid.Default);
+        });
         StatusBarViewModel.ReloadConnectionInteraction.RegisterHandler(async interaction =>
-            interaction.SetOutput(await ReloadCoreAsync(waitForTurn: true)));
+            interaction.SetOutput(await ReloadCoreAsync(waitForTurn: true, changingMode: true)));
 
         foreach (var reloadRequested in vmReloadRequestedList)
         {
@@ -660,7 +665,7 @@ public partial class MainWindowViewModel : MyReactiveObject
 
     public async Task Reload() => await ReloadCoreAsync(waitForTurn: false);
 
-    private async Task<bool> ReloadCoreAsync(bool waitForTurn)
+    private async Task<bool> ReloadCoreAsync(bool waitForTurn, bool changingMode = false)
     {
         if (DesignMode) return false;
         if (waitForTurn)
@@ -673,14 +678,15 @@ public partial class MainWindowViewModel : MyReactiveObject
             return false;
         }
 
-        bool checkTunStartup = !waitForTurn && _config.TunModeItem.EnableTun;
+        bool missingProfile = false;
+        bool checkTunStartup = !changingMode && _config.TunModeItem.EnableTun;
         bool running = false;
         try
         {
             SetReloadEnabled(false);
 
             // Release the tunnel even when the replacement profile is missing or invalid.
-            if (waitForTurn && !_config.TunModeItem.EnableTun)
+            if (changingMode && !_config.TunModeItem.EnableTun)
             {
                 await CoreManager.Instance.CoreStop();
             }
@@ -694,6 +700,8 @@ public partial class MainWindowViewModel : MyReactiveObject
             var profileItem = await ConfigTextHandler.GetDefaultServer();
             if (profileItem == null)
             {
+                missingProfile = true;
+                await CoreManager.Instance.CoreStop();
                 NoticeManager.Instance.Enqueue(ResUI.CheckServerSettings);
                 return false;
             }
@@ -750,7 +758,11 @@ public partial class MainWindowViewModel : MyReactiveObject
         {
             SetReloadEnabled(true);
             _reloadSemaphore.Release();
-            if (checkTunStartup && !running)
+            if (missingProfile && !changingMode)
+            {
+                await StatusBarViewModel.DisconnectWithoutProfileAsync();
+            }
+            else if (checkTunStartup && !running)
             {
                 await StatusBarViewModel.DisconnectFailedTunAsync();
             }

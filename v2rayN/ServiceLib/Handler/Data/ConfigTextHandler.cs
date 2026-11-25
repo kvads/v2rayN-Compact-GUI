@@ -377,7 +377,16 @@ public static class ConfigTextHandler
         if (item is null)
         {
             var item2 = await SQLiteHelper.Instance.TableAsync<ProfileItem>().FirstOrDefaultAsync();
-            await SetDefaultServerIndex(item2?.IndexId);
+            if (item2 != null)
+            {
+                await SetDefaultServerIndex(item2.IndexId);
+            }
+            else if (Config.IndexId.IsNotEmpty())
+            {
+                Config.PreIndexId = Config.IndexId;
+                Config.IndexId = string.Empty;
+                await SaveConfig();
+            }
             return item2;
         }
 

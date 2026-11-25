@@ -10,6 +10,7 @@ public sealed class ConfigurationListViewModel : ReactiveObject, IDisposable
     public MainWindowViewModel Main { get; }
     public ReactiveCommand<ProfileItemModel, RxVoid> Activate { get; }
     public ReactiveCommand<ProfileItemModel, RxVoid> Edit { get; }
+    public ReactiveCommand<ProfileItemModel, RxVoid> Delete { get; }
     public ReactiveCommand<ProfileItemModel, RxVoid> TestTcp { get; }
     public ReactiveCommand<ProfileItemModel, RxVoid> TestReal { get; }
     public ReactiveCommand<ProfileItemModel, RxVoid> TestSpeed { get; }
@@ -30,6 +31,7 @@ public sealed class ConfigurationListViewModel : ReactiveObject, IDisposable
         _profiles = main.ProfilesViewModel;
         Activate = ReactiveCommand.CreateFromTask<ProfileItemModel>(item => _profiles.SetDefaultServer(item.IndexId));
         Edit = ReactiveCommand.CreateFromTask<ProfileItemModel>(item => _profiles.EditServerAsync(item.IndexId));
+        Delete = ReactiveCommand.CreateFromTask<ProfileItemModel>(_profiles.RemoveServerAsync);
         TestTcp = CreateTest(ESpeedActionType.Tcping);
         TestReal = CreateTest(ESpeedActionType.Realping);
         TestSpeed = CreateTest(ESpeedActionType.Speedtest);
@@ -60,6 +62,7 @@ public sealed class ConfigurationListViewModel : ReactiveObject, IDisposable
         _profiles.ProfileItems.CollectionChanged -= ProfilesChanged;
         Activate.Dispose();
         Edit.Dispose();
+        Delete.Dispose();
         TestTcp.Dispose();
         TestReal.Dispose();
         TestSpeed.Dispose();

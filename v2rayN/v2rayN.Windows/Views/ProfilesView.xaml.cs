@@ -85,7 +85,7 @@ public partial class ProfilesView
             ViewModel.ShowYesNoInteraction.RegisterHandler(interaction =>
             {
                 var message = interaction.Input;
-                var result = UI.ShowYesNo(message) != MessageBoxResult.No;
+                var result = UI.ShowYesNo(message) == MessageBoxResult.Yes;
                 interaction.SetOutput(result);
             }).DisposeWith(disposables);
 

@@ -275,7 +275,7 @@ public partial class StatusBarViewModel : MyReactiveObject
         }
         else
         {
-            RunningServerDisplay = ResUI.CheckServerSettings;
+            RunningServerDisplay = SimpleUiText.NoConfigurations;
             RunningServerToolTipText = GetRunningServerToolTipText(RunningServerDisplay);
         }
     }
@@ -340,7 +340,7 @@ public partial class StatusBarViewModel : MyReactiveObject
         CanChangeConnection = false;
         try
         {
-            if (next.EnableTun && !previous.EnableTun && await ConfigTextHandler.GetDefaultServer() == null)
+            if (next.IsConnected && await ConfigTextHandler.GetDefaultServer() == null)
             {
                 NoticeManager.Instance.Enqueue(ResUI.CheckServerSettings);
                 return;
@@ -417,6 +417,12 @@ public partial class StatusBarViewModel : MyReactiveObject
         IsConnected = state.IsConnected;
         ConnectionActionText = IsConnected ? SimpleUiText.Disconnect : SimpleUiText.Connect;
         ConnectionStatusText = IsConnected ? SimpleUiText.Connected : SimpleUiText.Disconnected;
+    }
+
+    internal Task DisconnectWithoutProfileAsync()
+    {
+        var state = DesktopConnection.Read(_config);
+        return state.IsConnected ? ApplyConnection(state.Connect(false)) : Task.CompletedTask;
     }
 
     internal async Task DisconnectFailedTunAsync()
